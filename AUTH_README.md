@@ -46,8 +46,9 @@ This project now includes a complete authentication system with the following fe
    Create a `.env` file with:
    ```
    DATABASE_URL="file:./dev.db"
-   JWT_SECRET="your-super-secret-jwt-key-change-this-in-production"
+   JWT_SECRET="your-strong-jwt-secret-here"
    ```
+   **Note**: Use a strong, unique JWT secret for production!
 
 3. **Initialize Database**:
    ```bash
