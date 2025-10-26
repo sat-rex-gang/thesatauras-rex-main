@@ -501,7 +501,7 @@ const SinglePlayerMode = ({ questionFile, title, description, questionType }) =>
                     </div>
                     
                     <div className="mb-4">
-                      <p className="text-sm sm:text-base text-gray-900 leading-relaxed line-clamp-3">
+                      <p className="text-sm sm:text-base text-gray-900 leading-relaxed ">
                         {question.Question}
                       </p>
                     </div>
@@ -592,7 +592,7 @@ const SinglePlayerMode = ({ questionFile, title, description, questionType }) =>
                     </div>
                     
                     <div className="mb-4">
-                      <p className="text-sm sm:text-base text-gray-900 leading-relaxed line-clamp-3">
+                      <p className="text-sm sm:text-base text-gray-900 leading-relaxed ">
                         {question.Question}
                       </p>
                     </div>
