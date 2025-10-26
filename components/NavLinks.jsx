@@ -14,7 +14,7 @@ const fileLinks = [
   },
   {
     filePath: "/contacts",
-    fileName: "contacts",
+    fileName: "Contact Us",
   },
 ];
 
@@ -37,7 +37,7 @@ const fileLinksAuth = [
   },
   {
     filePath: "/contacts",
-    fileName: "contacts",
+    fileName: "Contact Us",
   },
 ];
 

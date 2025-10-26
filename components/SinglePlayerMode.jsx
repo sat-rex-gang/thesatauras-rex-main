@@ -12,6 +12,8 @@ const SinglePlayerMode = ({ questionFile, title, description, questionType }) =>
   const [isCorrect, setIsCorrect] = useState(false);
   const [correctAnswers, setCorrectAnswers] = useState([]);
   const [wrongAnswers, setWrongAnswers] = useState([]);
+  const [starredQuestions, setStarredQuestions] = useState([]);
+  const [revealedAnswers, setRevealedAnswers] = useState(new Set());
   const [score, setScore] = useState(0);
   const [totalQuestions, setTotalQuestions] = useState(0);
   const [gameStarted, setGameStarted] = useState(false);
@@ -26,6 +28,7 @@ const SinglePlayerMode = ({ questionFile, title, description, questionType }) =>
       currentQuestionIndex,
       correctAnswers,
       wrongAnswers,
+      starredQuestions,
       score,
       gameStarted,
       gameCompleted,
@@ -46,6 +49,7 @@ const SinglePlayerMode = ({ questionFile, title, description, questionType }) =>
           setCurrentQuestionIndex(progressData.currentQuestionIndex || 0);
           setCorrectAnswers(progressData.correctAnswers || []);
           setWrongAnswers(progressData.wrongAnswers || []);
+          setStarredQuestions(progressData.starredQuestions || []);
           setScore(progressData.score || 0);
           setGameStarted(progressData.gameStarted || false);
           setGameCompleted(progressData.gameCompleted || false);
@@ -163,12 +167,72 @@ const SinglePlayerMode = ({ questionFile, title, description, questionType }) =>
     }
   };
 
+  // Toggle star for a question
+  const toggleStar = (questionResult) => {
+    const isStarred = starredQuestions.some(q => 
+      q.question === questionResult.question && 
+      q.questionNumber === questionResult.questionNumber
+    );
+    if (isStarred) {
+      setStarredQuestions(prev => prev.filter(q => 
+        !(q.question === questionResult.question && q.questionNumber === questionResult.questionNumber)
+      ));
+    } else {
+      setStarredQuestions(prev => [...prev, questionResult]);
+    }
+  };
+
+  // Remove question from wrong/correct list and add back to quiz
+  const removeFromList = (questionResult, listType) => {
+    // Remove from the respective list
+    if (listType === 'correct') {
+      setCorrectAnswers(prev => prev.filter((q, index) => {
+        return q.question !== questionResult.question || 
+               q.questionNumber !== questionResult.questionNumber;
+      }));
+      // Update score if removing from correct
+      setScore(prev => Math.max(0, prev - 1));
+    } else {
+      setWrongAnswers(prev => prev.filter((q, index) => {
+        return q.question !== questionResult.question || 
+               q.questionNumber !== questionResult.questionNumber;
+      }));
+    }
+    
+    // Create a clean version of the question without userAnswer, isCorrect, questionNumber
+    const originalQuestion = {
+      Question: questionResult.Question,
+      Choices: questionResult.Choices,
+      Answer: questionResult.Answer,
+      Topic: questionResult.Topic
+    };
+    
+    // Add the question back to the end of the questions array
+    setQuestions(prev => [...prev, originalQuestion]);
+  };
+
+  // Toggle reveal answer
+  const toggleRevealAnswer = (questionResult) => {
+    // Use Question property (capital Q) to match the structure from questionResult
+    const questionText = questionResult.Question;
+    const key = `${questionResult.questionNumber}-${questionText}`;
+    setRevealedAnswers(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(key)) {
+        newSet.delete(key);
+      } else {
+        newSet.add(key);
+      }
+      return newSet;
+    });
+  };
+
   // Save progress whenever game state changes
   useEffect(() => {
     if (gameStarted && questions.length > 0) {
       saveProgress();
     }
-  }, [currentQuestionIndex, correctAnswers, wrongAnswers, score, gameStarted, gameCompleted, activeTab, questions.length]);
+  }, [currentQuestionIndex, correctAnswers, wrongAnswers, starredQuestions, score, gameStarted, gameCompleted, activeTab, questions.length]);
 
   const resetGame = () => {
     setGameStarted(false);
@@ -334,6 +398,16 @@ const SinglePlayerMode = ({ questionFile, title, description, questionType }) =>
             >
               Wrong ({wrongAnswers.length})
             </button>
+            <button
+              onClick={() => setActiveTab("starred")}
+              className={`px-3 py-2 rounded-lg font-medium transition-colors text-sm ${
+                activeTab === "starred"
+                  ? "bg-yellow-600 text-white"
+                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              }`}
+            >
+              ⭐ Starred ({starredQuestions.length})
+            </button>
             {gameCompleted && (
               <button
                 onClick={() => setActiveTab("results")}
@@ -495,6 +569,28 @@ const SinglePlayerMode = ({ questionFile, title, description, questionType }) =>
                           Question {question.questionNumber}
                         </span>
                       </div>
+                      <div className="flex gap-2">
+                        <motion.button
+                          onClick={() => toggleStar(question)}
+                          className={`p-2 rounded-full ${
+                            starredQuestions.some(q => q.question === question.question && q.questionNumber === question.questionNumber)
+                              ? 'text-yellow-500 bg-yellow-100'
+                              : 'text-gray-400 hover:text-yellow-500 hover:bg-yellow-50'
+                          }`}
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                        >
+                          ⭐
+                        </motion.button>
+                        <motion.button
+                          onClick={() => removeFromList(question, 'correct')}
+                          className="px-3 py-1 text-xs text-red-600 hover:text-red-700 border border-red-300 hover:border-red-400 rounded-full"
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          Remove
+                        </motion.button>
+                      </div>
                       <span className="text-xs sm:text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
                         {question.Topic.replace(/_/g, ' ')}
                       </span>
@@ -506,35 +602,59 @@ const SinglePlayerMode = ({ questionFile, title, description, questionType }) =>
                       </p>
                     </div>
                     
-                    <div className="bg-green-50 p-3 rounded-lg border border-green-200">
-                      <p className="text-xs font-medium text-green-700 mb-1">Your Answer:</p>
-                      <p className="text-sm font-semibold text-green-800">
-                        {question.userAnswer}
-                      </p>
-                    </div>
-                    
-                    <div className="mt-4">
-                      <p className="text-xs font-medium text-gray-600 mb-2">Answer Choices:</p>
-                      <div className="space-y-2">
-                        {question.Choices.map((choice, choiceIndex) => {
-                          const choiceLetter = choice.split('.')[0];
-                          const isUserAnswer = choiceLetter === question.userAnswer;
-                          
-                          return (
-                            <div
-                              key={choiceIndex}
-                              className={`p-2 rounded text-xs ${
-                                isUserAnswer
-                                  ? 'bg-green-100 border border-green-300 text-green-800'
-                                  : 'bg-gray-50 border border-gray-200 text-gray-700'
-                              }`}
-                            >
-                              <span className="font-medium">{choice}</span>
+                    {(() => {
+                      const key = `${question.questionNumber}-${question.Question}`;
+                      const isRevealed = revealedAnswers.has(key);
+                      return (
+                        <>
+                          <motion.button
+                            onClick={() => toggleRevealAnswer(question)}
+                            className="w-full py-2 px-4 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                          >
+                            {isRevealed ? '👁️ Hide Answer' : '🔍 Reveal Answer'}
+                          </motion.button>
+
+                          {isRevealed && (
+                            <div className="bg-green-50 p-3 rounded-lg border border-green-200 mb-3 mt-3">
+                              <p className="text-xs font-medium text-green-700 mb-1">Your Answer:</p>
+                              <p className="text-sm font-semibold text-green-800">
+                                {question.userAnswer}
+                              </p>
                             </div>
-                          );
-                        })}
-                      </div>
-                    </div>
+                          )}
+
+                          <div className="mt-4">
+                            <p className="text-xs font-medium text-gray-600 mb-2">Answer Choices:</p>
+                            <div className="space-y-2">
+                              {question.Choices.map((choice, choiceIndex) => {
+                                const choiceLetter = choice.split('.')[0];
+                                const isUserAnswer = choiceLetter === question.userAnswer;
+                                const isCorrectAnswer = isRevealed && choiceLetter === question.Answer;
+                                
+                                return (
+                                  <div
+                                    key={choiceIndex}
+                                    className={`p-2 rounded text-xs ${
+                                      isUserAnswer && isRevealed && isCorrectAnswer
+                                        ? 'bg-green-100 border border-green-300 text-green-800'
+                                        : isUserAnswer && isRevealed && !isCorrectAnswer
+                                        ? 'bg-red-100 border border-red-300 text-red-800'
+                                        : isCorrectAnswer
+                                        ? 'bg-green-100 border border-green-300 text-green-800'
+                                        : 'bg-gray-50 border border-gray-200 text-gray-700'
+                                    }`}
+                                  >
+                                    <span className="font-medium">{choice}</span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        </>
+                      );
+                    })()}
                   </GlassComponents>
                 ))}
                 {correctAnswers.length === 0 && (
@@ -586,6 +706,28 @@ const SinglePlayerMode = ({ questionFile, title, description, questionType }) =>
                           Question {question.questionNumber}
                         </span>
                       </div>
+                      <div className="flex gap-2">
+                        <motion.button
+                          onClick={() => toggleStar(question)}
+                          className={`p-2 rounded-full ${
+                            starredQuestions.some(q => q.question === question.question && q.questionNumber === question.questionNumber)
+                              ? 'text-yellow-500 bg-yellow-100'
+                              : 'text-gray-400 hover:text-yellow-500 hover:bg-yellow-50'
+                          }`}
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                        >
+                          ⭐
+                        </motion.button>
+                        <motion.button
+                          onClick={() => removeFromList(question, 'wrong')}
+                          className="px-3 py-1 text-xs text-red-600 hover:text-red-700 border border-red-300 hover:border-red-400 rounded-full"
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          Remove
+                        </motion.button>
+                      </div>
                       <span className="text-xs sm:text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
                         {question.Topic.replace(/_/g, ' ')}
                       </span>
@@ -597,46 +739,57 @@ const SinglePlayerMode = ({ questionFile, title, description, questionType }) =>
                       </p>
                     </div>
                     
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div className="bg-red-50 p-3 rounded-lg border border-red-200">
-                        <p className="text-xs font-medium text-red-700 mb-1">Your Answer:</p>
-                        <p className="text-sm font-semibold text-red-800">
-                          {question.userAnswer}
-                        </p>
-                      </div>
-                      <div className="bg-green-50 p-3 rounded-lg border border-green-200">
-                        <p className="text-xs font-medium text-green-700 mb-1">Correct Answer:</p>
-                        <p className="text-sm font-semibold text-green-800">
-                          {question.Answer}
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div className="mt-4">
-                      <p className="text-xs font-medium text-gray-600 mb-2">Answer Choices:</p>
-                      <div className="space-y-2">
-                        {question.Choices.map((choice, choiceIndex) => {
-                          const choiceLetter = choice.split('.')[0];
-                          const isUserAnswer = choiceLetter === question.userAnswer;
-                          const isCorrectAnswer = choiceLetter === question.Answer;
-                          
-                          return (
-                            <div
-                              key={choiceIndex}
-                              className={`p-2 rounded text-xs ${
-                                isCorrectAnswer
-                                  ? 'bg-green-100 border border-green-300 text-green-800'
-                                  : isUserAnswer
-                                  ? 'bg-red-100 border border-red-300 text-red-800'
-                                  : 'bg-gray-50 border border-gray-200 text-gray-700'
-                              }`}
-                            >
-                              <span className="font-medium">{choice}</span>
+                    {(() => {
+                      const key = `${question.questionNumber}-${question.Question}`;
+                      const isRevealed = revealedAnswers.has(key);
+                      return (
+                        <>
+                          <motion.button
+                            onClick={() => toggleRevealAnswer(question)}
+                            className="w-full py-2 px-4 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                          >
+                            {isRevealed ? '👁️ Hide Answer' : '🔍 Reveal Answer'}
+                          </motion.button>
+
+                          {isRevealed && (
+                            <div className="bg-red-50 p-3 rounded-lg border border-red-200 mb-3 mt-3">
+                              <p className="text-xs font-medium text-red-700 mb-1">Your Answer:</p>
+                              <p className="text-sm font-semibold text-red-800">
+                                {question.userAnswer}
+                              </p>
                             </div>
-                          );
-                        })}
-                      </div>
-                    </div>
+                          )}
+
+                          <div className="mt-4">
+                            <p className="text-xs font-medium text-gray-600 mb-2">Answer Choices:</p>
+                            <div className="space-y-2">
+                              {question.Choices.map((choice, choiceIndex) => {
+                                const choiceLetter = choice.split('.')[0];
+                                const isUserAnswer = isRevealed && choiceLetter === question.userAnswer;
+                                const isCorrectAnswer = isRevealed && choiceLetter === question.Answer;
+                                
+                                return (
+                                  <div
+                                    key={choiceIndex}
+                                    className={`p-2 rounded text-xs ${
+                                      isCorrectAnswer
+                                        ? 'bg-green-100 border border-green-300 text-green-800'
+                                        : isUserAnswer
+                                        ? 'bg-red-100 border border-red-300 text-red-800'
+                                        : 'bg-gray-50 border border-gray-200 text-gray-700'
+                                    }`}
+                                  >
+                                    <span className="font-medium">{choice}</span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        </>
+                      );
+                    })()}
                   </GlassComponents>
                 ))}
                 {wrongAnswers.length === 0 && (
@@ -644,6 +797,136 @@ const SinglePlayerMode = ({ questionFile, title, description, questionType }) =>
                     <div className="text-4xl mb-4">🎉</div>
                     <p className="text-lg font-medium">No incorrect answers yet!</p>
                     <p className="text-sm">Great job! Keep up the excellent work.</p>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
+
+          {activeTab === "starred" && (
+            <motion.div
+              key="starred"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+            >
+              <h2 className="text-2xl font-bold text-yellow-600 mb-6">
+                ⭐ Starred Questions ({starredQuestions.length})
+              </h2>
+              <div className="space-y-4">
+                {starredQuestions.map((question, index) => (
+                  <GlassComponents 
+                    key={index}
+                    className="rounded-lg p-4 sm:p-6"
+                    width="100%"
+                    height="auto"
+                    borderRadius={20}
+                    borderWidth={0.03}
+                    backgroundOpacity={0.1}
+                    saturation={1}
+                    brightness={50}
+                    opacity={0.93}
+                    blur={22}
+                    displace={0.5}
+                    distortionScale={-180}
+                    redOffset={0}
+                    greenOffset={10}
+                    blueOffset={20}
+                    mixBlendMode="screen"
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-4 gap-2">
+                      <div className="flex items-center">
+                        <span className="text-yellow-600 text-xl mr-2 flex-shrink-0">⭐</span>
+                        <span className="font-semibold text-yellow-600">
+                          Question {question.questionNumber}
+                        </span>
+                      </div>
+                      <div className="flex gap-2">
+                        <motion.button
+                          onClick={() => toggleStar(question)}
+                          className="p-2 text-yellow-500 bg-yellow-100 rounded-full"
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                        >
+                          ⭐
+                        </motion.button>
+                      </div>
+                      <span className="text-xs sm:text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                        {question.Topic?.replace(/_/g, ' ') || 'Unknown'}
+                      </span>
+                    </div>
+                    
+                    <div className="mb-4">
+                      <p className="text-sm sm:text-base text-gray-900 leading-relaxed ">
+                        {question.Question || question.question}
+                      </p>
+                    </div>
+                    
+                    {(() => {
+                      // Use the same key format as correct/wrong tabs
+                      const questionText = question.Question || question.question;
+                      const key = `${question.questionNumber}-${questionText}`;
+                      const isRevealed = revealedAnswers.has(key);
+                      const isCorrect = question.isCorrect !== undefined ? question.isCorrect : null;
+                      
+                      return (
+                        <>
+                          <motion.button
+                            onClick={() => toggleRevealAnswer(question)}
+                            className="w-full py-2 px-4 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 mb-4"
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                          >
+                            {isRevealed ? '👁️ Hide Answer' : '🔍 Reveal Answer'}
+                          </motion.button>
+
+                          {isRevealed && (
+                            <div className={`${isCorrect ? 'bg-green-50 border-green-200' : 'bg-yellow-50 border-yellow-200'} p-3 rounded-lg border mb-3`}>
+                              <p className={`text-xs font-medium mb-1 ${isCorrect ? 'text-green-700' : 'text-yellow-700'}`}>Your Answer:</p>
+                              <p className={`text-sm font-semibold ${isCorrect ? 'text-green-800' : 'text-yellow-800'}`}>
+                                {question.userAnswer}
+                              </p>
+                            </div>
+                          )}
+
+                          {question.Choices && (
+                            <div className="mt-4">
+                              <p className="text-xs font-medium text-gray-600 mb-2">Answer Choices:</p>
+                              <div className="space-y-2">
+                                {question.Choices.map((choice, choiceIndex) => {
+                                  const choiceLetter = choice.split('.')[0];
+                                  const correctAnswer = question.Answer;
+                                  const isUserAnswer = isRevealed && choiceLetter === question.userAnswer;
+                                  const isCorrectAnswer = isRevealed && choiceLetter === correctAnswer;
+                                  
+                                  return (
+                                    <div
+                                      key={choiceIndex}
+                                      className={`p-2 rounded text-xs ${
+                                        isCorrectAnswer
+                                          ? 'bg-green-100 border border-green-300 text-green-800'
+                                          : isUserAnswer && !isCorrectAnswer
+                                          ? 'bg-red-100 border border-red-300 text-red-800'
+                                          : 'bg-gray-50 border border-gray-200 text-gray-700'
+                                      }`}
+                                    >
+                                      <span className="font-medium">{choice}</span>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          )}
+                        </>
+                      );
+                    })()}
+                  </GlassComponents>
+                ))}
+                {starredQuestions.length === 0 && (
+                  <div className="text-center py-12 text-gray-500">
+                    <div className="text-4xl mb-4">⭐</div>
+                    <p className="text-lg font-medium">No starred questions yet!</p>
+                    <p className="text-sm">Star questions you want to review later.</p>
                   </div>
                 )}
               </div>

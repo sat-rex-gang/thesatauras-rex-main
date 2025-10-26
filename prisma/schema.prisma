@@ -27,6 +27,7 @@ model User {
   satScores     SatScore[]
   practiceTests PracticeTest[]
   vocabProgress VocabProgress[]
+  vocabState    VocabState?
   flashcardProgress UserFlashcardProgress[]
 
   @@map("users")
@@ -71,6 +72,24 @@ model VocabProgress {
 
   @@unique([userId, word])
   @@map("vocab_progress")
+}
+
+model VocabState {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  currentIndex  Int      @default(0)
+  activeTab     String   @default("unseen")
+  searchTerm    String   @default("")
+  showWordFirst Boolean  @default(true)
+  isShuffled    Boolean  @default(false)
+  knownWords    String   @default("[]")
+  unknownWords  String   @default("[]")
+  starredWords  String   @default("[]")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("vocab_state")
 }
 
 model Tag {

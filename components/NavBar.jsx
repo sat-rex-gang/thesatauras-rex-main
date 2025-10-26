@@ -40,10 +40,10 @@ export default function NavBar() {
           greenOffset={10}
           blueOffset={20}
           mixBlendMode="screen"
-          className="fixed top-[30px] left-1/2 transform -translate-x-1/2 flex flex-row py-4 px-10 justify-between items-center z-[9999]"
+          className="fixed top-[30px] left-1/2 transform -translate-x-1/2 flex flex-row py-4 px-4 sm:px-10 justify-between items-center z-[9999] w-[90%] sm:w-[60%]"
         >
           <h1 className="absolute left-0">
-            <span className="font-extrabold text-[25px] text-primary hidden sm:block">
+            <span className="font-extrabold text-[18px] sm:text-[25px] text-primary block">
               <a href={isAuthenticated ? "/dashboard" : "/"}>
                 <GradientText
                   className="font-bold inline"
@@ -195,9 +195,9 @@ export default function NavBar() {
         {isOpen && (
           <motion.div
             key="dropdown"
-            className={`fixed top-[130px] right-[calc(50%-30vw)] z-[9999] ${
+            className={`fixed top-[130px] right-1/2 translate-x-1/2 sm:right-[calc(50%-30vw)] sm:translate-x-0 z-[9999] ${
               isAuthenticated ? "h-[550px]" : "h-[225px]"
-            } w-[255px]`}
+            } w-[90%] sm:w-[255px]`}
             initial={{ opacity: 0, y: 20 }}
             animate={{
               opacity: 1,

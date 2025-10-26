@@ -70,10 +70,10 @@ export default function Signup() {
         className="max-w-md w-full space-y-8"
       >
         <div>
-          <h2 className="mt-15 text-center text-3xl font-extrabold text-gray-900">
+          <h2 className="mt-15 text-center text-2xl sm:text-3xl font-extrabold text-gray-900">
             Create your account
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          <p className="mt-2 text-center text-xs sm:text-sm text-gray-600">
             Or{" "}
             <motion.a
               href="/login"
@@ -101,7 +101,7 @@ export default function Signup() {
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <motion.div
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}

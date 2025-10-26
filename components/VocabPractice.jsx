@@ -7,8 +7,10 @@ import { GrRefresh } from "react-icons/gr";
 import { FaCheck, FaTimes, FaStar } from "react-icons/fa";
 import GradientText from "./GradientText";
 import GlassComponents from "./GlassComponents";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function VocabPractice() {
+  const { user } = useAuth();
   const controls = useAnimation();
   const cardRef = useRef(null);
   
@@ -28,11 +30,12 @@ export default function VocabPractice() {
   const [starredWords, setStarredWords] = useState(new Set());
   const [swipeDirection, setSwipeDirection] = useState(null);
   const [isSwipeActive, setIsSwipeActive] = useState(false);
-  const [activeTab, setActiveTab] = useState("all"); // "all", "starred", "wrong"
+  const [activeTab, setActiveTab] = useState("unseen"); // "all", "starred", "wrong", "unseen"
   const [practiceMode, setPracticeMode] = useState(false); // true when practicing wrong answers only
   const [isFlipped, setIsFlipped] = useState(false); // true when showing definition
   const [showWordFirst, setShowWordFirst] = useState(true); // true = word first, false = definition first
   const [isShuffled, setIsShuffled] = useState(false); // true when cards are shuffled
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
 
   // Load vocab data and progress
   useEffect(() => {
@@ -50,7 +53,7 @@ export default function VocabPractice() {
         setVocabWords(data);
         setFilteredWords(data);
         
-        // Load saved progress
+        // Load saved progress from localStorage
         const savedKnown = localStorage.getItem('vocab-known-words');
         const savedUnknown = localStorage.getItem('vocab-unknown-words');
         const savedStarred = localStorage.getItem('vocab-starred-words');
@@ -64,9 +67,89 @@ export default function VocabPractice() {
         if (savedStarred) {
           setStarredWords(new Set(JSON.parse(savedStarred)));
         }
+        
+        // Load from database if user is logged in
+        if (user) {
+          try {
+            const token = localStorage.getItem('token');
+            const response = await fetch('/api/vocab/position', {
+              headers: {
+                'Authorization': `Bearer ${token}`
+              }
+            });
+            
+            if (response.ok) {
+              const data = await response.json();
+              console.log('Loaded position from database:', data);
+              
+              if (data.currentIndex !== undefined) {
+                setCurrentWordIndex(data.currentIndex);
+              }
+              if (data.activeTab) {
+                setActiveTab(data.activeTab);
+              }
+              if (data.searchTerm !== undefined) {
+                setSearchTerm(data.searchTerm);
+              }
+              if (data.showWordFirst !== undefined) {
+                setShowWordFirst(data.showWordFirst);
+              }
+              if (data.isShuffled !== undefined) {
+                setIsShuffled(data.isShuffled);
+              }
+              
+              // Also update localStorage with database values
+              if (data.currentIndex !== undefined) {
+                localStorage.setItem('vocab-current-index', data.currentIndex.toString());
+              }
+            }
+          } catch (error) {
+            console.error('Error loading from database:', error);
+            // Fall back to localStorage if database fails
+            const savedIndex = localStorage.getItem('vocab-current-index');
+            if (savedIndex) {
+              const index = parseInt(savedIndex, 10);
+              if (!isNaN(index)) {
+                setCurrentWordIndex(index);
+              }
+            }
+          }
+        } else {
+          // Not logged in, use localStorage
+          const savedIndex = localStorage.getItem('vocab-current-index');
+          if (savedIndex) {
+            const index = parseInt(savedIndex, 10);
+            if (!isNaN(index)) {
+              setCurrentWordIndex(index);
+            }
+          }
+        }
+        
+        // Load other settings from localStorage
+        const savedTab = localStorage.getItem('vocab-active-tab');
+        const savedSearch = localStorage.getItem('vocab-search-term');
+        const savedShowWordFirst = localStorage.getItem('vocab-show-word-first');
+        const savedIsShuffled = localStorage.getItem('vocab-is-shuffled');
+        
+        if (savedTab && !user) {
+          setActiveTab(savedTab);
+        }
+        if (savedSearch && !user) {
+          setSearchTerm(savedSearch);
+        }
+        if (savedShowWordFirst !== null && !user) {
+          setShowWordFirst(savedShowWordFirst === 'true');
+        }
+        if (savedIsShuffled !== null && !user) {
+          setIsShuffled(savedIsShuffled === 'true');
+        }
+        
+        // Mark initial load as complete
+        setInitialLoadComplete(true);
       } catch (err) {
         setError(err.message);
         console.error('Error loading vocab data:', err);
+        setInitialLoadComplete(true);
       } finally {
         setLoading(false);
       }
@@ -107,22 +190,31 @@ export default function VocabPractice() {
     }
   }, [searchTerm, vocabWords, activeTab, starredWords, unknownWords, knownWords, isShuffled]);
 
-  // Reset index only when changing tabs or search
+  // When activeTab or searchTerm changes AFTER initial load, reset index to 0
   useEffect(() => {
-    setCurrentWordIndex(0);
-    setIsFlipped(false);
-  }, [activeTab, searchTerm]);
-
-  // Handle bounds checking when filtered words change
-  useEffect(() => {
-    if (filteredWords.length > 0 && currentWordIndex >= filteredWords.length) {
-      // If current index is out of bounds, reset to last valid index
-      setCurrentWordIndex(Math.max(0, filteredWords.length - 1));
-    } else if (filteredWords.length === 0) {
-      // If no words available, reset to 0
-      setCurrentWordIndex(0);
+    if (initialLoadComplete && vocabWords.length > 0) {
+      // Only reset if user actually changed the tab or search
+      const savedTab = localStorage.getItem('vocab-active-tab');
+      const savedSearch = localStorage.getItem('vocab-search-term');
+      
+      if (savedTab !== activeTab || savedSearch !== searchTerm) {
+        // User changed tab or search, reset index
+        setCurrentWordIndex(0);
+      }
     }
-  }, [filteredWords.length, currentWordIndex]);
+    setIsFlipped(false);
+  }, [activeTab, searchTerm, initialLoadComplete, vocabWords.length]);
+
+  // Handle bounds checking when filtered words change (but only after initial load)
+  useEffect(() => {
+    // Only adjust bounds if we've already loaded the initial position AND the user is actively filtering
+    if (initialLoadComplete && filteredWords.length > 0) {
+      // Only adjust if the current index is truly out of bounds
+      if (currentWordIndex >= filteredWords.length) {
+        setCurrentWordIndex(Math.max(0, filteredWords.length - 1));
+      }
+    }
+  }, [filteredWords.length, currentWordIndex, initialLoadComplete]);
 
   // Handle hover animation
   useEffect(() => {
@@ -132,11 +224,6 @@ export default function VocabPractice() {
       controls.start({ rotate: cumulativeAngle, transition: { duration: 0.3, ease: "circOut" } });
     }
   }, [isRefreshHovering, cumulativeAngle, controls]);
-
-  // Save progress whenever known/unknown words change
-  useEffect(() => {
-    saveProgress();
-  }, [knownWords, unknownWords]);
 
   // Touch/swipe handling
   useEffect(() => {
@@ -217,12 +304,47 @@ export default function VocabPractice() {
 
   const currentWord = filteredWords[currentWordIndex];
 
-  // Save progress to localStorage
-  const saveProgress = () => {
+  // Save progress to localStorage and database
+  useEffect(() => {
+    // Save all state to localStorage immediately
     localStorage.setItem('vocab-known-words', JSON.stringify([...knownWords]));
     localStorage.setItem('vocab-unknown-words', JSON.stringify([...unknownWords]));
     localStorage.setItem('vocab-starred-words', JSON.stringify([...starredWords]));
-  };
+    localStorage.setItem('vocab-current-index', currentWordIndex.toString());
+    localStorage.setItem('vocab-active-tab', activeTab);
+    localStorage.setItem('vocab-search-term', searchTerm);
+    localStorage.setItem('vocab-show-word-first', showWordFirst.toString());
+    localStorage.setItem('vocab-is-shuffled', isShuffled.toString());
+    
+    // Also save to database if user is logged in
+    if (user && initialLoadComplete) {
+      const saveToDatabase = async () => {
+        try {
+          const token = localStorage.getItem('token');
+          await fetch('/api/vocab/position', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              currentIndex: currentWordIndex,
+              activeTab,
+              searchTerm,
+              showWordFirst,
+              isShuffled
+            })
+          });
+        } catch (error) {
+          console.error('Failed to save to database:', error);
+        }
+      };
+      
+      // Debounce the database save
+      const timer = setTimeout(saveToDatabase, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [knownWords.size, unknownWords.size, starredWords.size, currentWordIndex, activeTab, searchTerm, showWordFirst, isShuffled, user, initialLoadComplete]);
 
   // Navigation functions
   const nextWord = () => {
@@ -337,11 +459,19 @@ export default function VocabPractice() {
     setStarredWords(new Set());
     setCurrentWordIndex(0);
     setShowDefinition(false);
-    setActiveTab("all");
+    setActiveTab("unseen");
     setPracticeMode(false);
+    setSearchTerm("");
+    setShowWordFirst(true);
+    setIsShuffled(false);
     localStorage.removeItem('vocab-known-words');
     localStorage.removeItem('vocab-unknown-words');
     localStorage.removeItem('vocab-starred-words');
+    localStorage.removeItem('vocab-current-index');
+    localStorage.removeItem('vocab-active-tab');
+    localStorage.removeItem('vocab-search-term');
+    localStorage.removeItem('vocab-show-word-first');
+    localStorage.removeItem('vocab-is-shuffled');
   };
 
   const refreshData = () => {

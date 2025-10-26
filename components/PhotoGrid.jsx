@@ -13,13 +13,13 @@ export default function PhotoGrid({
   imgHeight,
 }) {
   return (
-    <div className="justify-center items-center h-auto w-full flex flex-row mb-10">
+    <div className="justify-center items-center h-auto w-full flex flex-col md:flex-row mb-10 gap-6 md:gap-0">
       {imageOrientation === "right" && (
         <>
-          <div className="relative h-auto w-[34vw] translate-x-[8vw] flex justify-center items-center text-center">
-            <p className="text-[30px] font-bold block">{textField}</p>
+          <div className="relative h-auto w-[90vw] md:w-[34vw] md:translate-x-[8vw] flex justify-center items-center text-center md:translate-x-0">
+            <p className="text-2xl sm:text-3xl md:text-[30px] font-bold block px-4">{textField}</p>
           </div>
-          <div className="h-auto w-[50vw] flex justify-center items-center">
+          <div className="h-auto w-full md:w-[50vw] flex justify-center items-center px-4">
             <motion.div
               whileHover={{
                 rotate: 8,
@@ -97,8 +97,8 @@ export default function PhotoGrid({
               </GlassComponents>
             </motion.div>
           </div>
-          <div className="relative h-auto w-[34vw] translate-x-[8vw] flex justify-center items-center text-center">
-            <p className="text-[30px] font-bold block">{textField}</p>
+          <div className="relative h-auto w-[90vw] md:w-[34vw] md:translate-x-[8vw] flex justify-center items-center text-center md:translate-x-0">
+            <p className="text-2xl sm:text-3xl md:text-[30px] font-bold block px-4">{textField}</p>
           </div>
         </>
       )}

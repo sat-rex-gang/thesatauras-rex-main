@@ -46,10 +46,10 @@ export default function Home() {
             transparent={true}
             antialias={false}
           />
-          <div className="absolute z-10 text-center px-8 w-[80vw]">
+          <div className="absolute z-10 text-center px-4 sm:px-8 w-[90vw] sm:w-[80vw]">
             <BlurText
               text="Boosting SAT Scores, One Student at a Time."
-              className="text-8xl md:text-6xl font-bold text-secondary drop-shadow-2xl"
+              className="text-3xl sm:text-5xl md:text-6xl font-bold text-secondary drop-shadow-2xl"
               delay={100}
               stepDuration={0.4}
             />
@@ -57,35 +57,7 @@ export default function Home() {
         </div>
         <div className="w-full h-auto flex flex-col justify-center items-center gap-10 mt-10">
           <motion.h2
-            className="text-[35px] font-extrabold text-center"
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{
-              opacity: 1,
-              y: 0,
-              transition: {
-                duration: 0.3,
-                ease: "circOut",
-              },
-            }}
-            viewport={{ once: true }}
-          >
-            Why we're{" "}
-            <GradientText
-              colors={["#038dff", "#949bff", "#038dff", "#949bff", "#038dff"]}
-              animationSpeed={8}
-              showBorder={false}
-            >
-              trusted nationally:
-            </GradientText>
-          </motion.h2>
-          <div className="flex flex-col md:flex-row gap-10">
-            <div className={`flex gap-10 xs:flex-row flex-col`}>
-              <CompanySummaries descriptionType={"Scores"} />
-              <CompanySummaries descriptionType={"Tests"} />
-            </div>
-          </div>
-          <motion.h2
-            className="text-[35px] font-extrabold px-10 mt-20"
+            className="text-2xl sm:text-3xl md:text-[35px] font-extrabold px-4 sm:px-10 mt-12 sm:mt-20"
             initial={{ opacity: 0, y: 10 }}
             whileInView={{
               opacity: 1,
