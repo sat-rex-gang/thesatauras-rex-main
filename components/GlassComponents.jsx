@@ -119,8 +119,9 @@ const GlassComponents = ({
         ...containerStyle,
         position: 'relative',
         display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between'
+        flexDirection: 'column',
+        alignItems: 'stretch',
+        justifyContent: 'flex-start'
       }}
     >
       <svg className="glass-surface__filter" xmlns="http://www.w3.org/2000/svg">
@@ -140,13 +141,14 @@ const GlassComponents = ({
         </defs>
       </svg>
       <div 
-        className="glass-surface__content flex-col"
+        className="glass-surface__content"
         style={{
           display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
+          flexDirection: 'column',
+          alignItems: 'stretch',
+          justifyContent: 'flex-start',
           width: '100%',
-          height: '100%',
+          minHeight: '100%',
           padding: 0
         }}
       >

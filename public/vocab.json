@@ -1,0 +1,1426 @@
+[
+    {
+      "word": "abrupt",
+      "definition": "Sudden and unexpected."
+    },
+    {
+      "word": "absorbed",
+      "definition": "Deeply interested or engrossed in something."
+    },
+    {
+      "word": "accelerator",
+      "definition": "A device, typically a pedal in a vehicle, for increasing speed."
+    },
+    {
+      "word": "acceptable",
+      "definition": "Able to be agreed on; satisfactory."
+    },
+    {
+      "word": "accommodate",
+      "definition": "(Of a building or other space) provide lodging or sufficient space for."
+    },
+    {
+      "word": "accomplishment",
+      "definition": "Something that has been achieved successfully."
+    },
+    {
+      "word": "acknowledged",
+      "definition": "Recognized as being good or important."
+    },
+    {
+      "word": "acquired",
+      "definition": "Bought or obtained for oneself."
+    },
+    {
+      "word": "adhere",
+      "definition": "Stick fast to (a surface or substance)."
+    },
+    {
+      "word": "advantageous",
+      "definition": "Involving or creating favorable circumstances that increase the chances of success or effectiveness."
+    },
+    {
+      "word": "advocacy",
+      "definition": "Public support for or recommendation of a particular cause or policy."
+    },
+    {
+      "word": "aerial",
+      "definition": "Existing, happening, or operating in the air."
+    },
+    {
+      "word": "aesthetic",
+      "definition": "Concerned with beauty or the appreciation of beauty."
+    },
+    {
+      "word": "aggravate",
+      "definition": "Make (a problem, injury, or offense) worse or more serious."
+    },
+    {
+      "word": "alleviate",
+      "definition": "Make (suffering, deficiency, or a problem) less severe."
+    },
+    {
+      "word": "ambivalence",
+      "definition": "The state of having mixed feelings or contradictory ideas about something or someone."
+    },
+    {
+      "word": "annotate",
+      "definition": "Add notes to (a text or diagram) giving explanation or comment."
+    },
+    {
+      "word": "anon",
+      "definition": "Soon; shortly (an archaic word)."
+    },
+    {
+      "word": "anticipating",
+      "definition": "Expecting or predicting."
+    },
+    {
+      "word": "appropriate",
+      "definition": "Suitable or proper in the circumstances."
+    },
+    {
+      "word": "approximate",
+      "definition": "Close to the actual, but not completely accurate or exact."
+    },
+    {
+      "word": "acquisition",
+      "definition": "An asset or object bought or obtained."
+    },
+    {
+      "word": "argue",
+      "definition": "Give reasons or cite evidence in support of an idea, action, or theory, typically with the aim of persuading others to share one's view."
+    },
+    {
+      "word": "attribute (v)",
+      "definition": "Regard something as being caused by (someone or something)."
+    },
+    {
+      "word": "authenticity",
+      "definition": "The quality of being authentic; genuineness."
+    },
+    {
+      "word": "beneficial",
+      "definition": "Favorable or advantageous; resulting in good."
+    },
+    {
+      "word": "commissioned",
+      "definition": "Given an order for or authorized the production of (something)."
+    },
+    {
+      "word": "committed",
+      "definition": "Feeling dedication and loyalty to a cause, activity, or job."
+    },
+    {
+      "word": "common",
+      "definition": "Occurring, found, or done often; prevalent."
+    },
+    {
+      "word": "comparable to",
+      "definition": "Similar to; able to be compared."
+    },
+    {
+      "word": "compelling",
+      "definition": "Evoking interest, attention, or admiration in a powerfully irresistible way."
+    },
+    {
+      "word": "complementary",
+      "definition": "Combining in such a way as to enhance or complete one another."
+    },
+    {
+      "word": "compose",
+      "definition": "Write or create (a work of art, especially music or poetry)."
+    },
+    {
+      "word": "comprises",
+      "definition": "Consists of; is made up of."
+    },
+    {
+      "word": "concealed",
+      "definition": "Kept secret; hidden."
+    },
+    {
+      "word": "concede",
+      "definition": "Admit that something is true or valid after first denying or resisting it."
+    },
+    {
+      "word": "conceptualize",
+      "definition": "Form a concept or idea of (something)."
+    },
+    {
+      "word": "concern about",
+      "definition": "A feeling of anxiety or worry about something."
+    },
+    {
+      "word": "concerning",
+      "definition": "About; regarding."
+    },
+    {
+      "word": "conditions",
+      "definition": "The circumstances affecting the way in which people live or work."
+    },
+    {
+      "word": "confident",
+      "definition": "Feeling or showing certainty about something."
+    },
+    {
+      "word": "confined to",
+      "definition": "Restricted in area or volume; cramped."
+    },
+    {
+      "word": "conflicted",
+      "definition": "Having or showing confused and inconsistent feelings."
+    },
+    {
+      "word": "conform to",
+      "definition": "Comply with rules, standards, or laws."
+    },
+    {
+      "word": "conjecture",
+      "definition": "An opinion or conclusion formed on the basis of incomplete information."
+    },
+    {
+      "word": "consistent with",
+      "definition": "In agreement with; compatible."
+    },
+    {
+      "word": "contemporary",
+      "definition": "Living or occurring at the same time."
+    },
+    {
+      "word": "contrive",
+      "definition": "Create or bring about (an object or a situation) by deliberate use of skill and artifice."
+    },
+    {
+      "word": "controversial",
+      "definition": "Giving rise or likely to give rise to public disagreement."
+    },
+    {
+      "word": "convey",
+      "definition": "Make (an idea, impression, or feeling) known or understandable to someone."
+    },
+    {
+      "word": "corollary",
+      "definition": "A proposition that follows from (and is often appended to) one already proved."
+    },
+    {
+      "word": "discernible",
+      "definition": "Able to be perceived or distinguished."
+    },
+    {
+      "word": "disconcerting",
+      "definition": "Causing one to feel unsettled."
+    },
+    {
+      "word": "discourage",
+      "definition": "Cause (someone) to lose confidence or enthusiasm."
+    },
+    {
+      "word": "disengage",
+      "definition": "Separate or release (someone or something) from something to which they are attached or connected."
+    },
+    {
+      "word": "disorienting",
+      "definition": "Causing (someone) to lose their sense of direction."
+    },
+    {
+      "word": "disparate",
+      "definition": "Essentially different in kind; not allowing comparison."
+    },
+    {
+      "word": "dispute",
+      "definition": "A disagreement, argument, or debate."
+    },
+    {
+      "word": "distraction",
+      "definition": "A thing that prevents someone from giving full attention to something else."
+    },
+    {
+      "word": "ditty",
+      "definition": "A short, simple song."
+    },
+    {
+      "word": "diverge",
+      "definition": "(Of a road, route, or line) separate from another route and go in a different direction."
+    },
+    {
+      "word": "diversification",
+      "definition": "The process of a business enlarging or varying its range of products or field of operation."
+    },
+    {
+      "word": "dormant",
+      "definition": "(Of an animal) having normal physical functions suspended or slowed down for a period of time; in or as if in a deep sleep."
+    },
+    {
+      "word": "doth",
+      "definition": "An archaic third-person singular present form of \"do.\""
+    },
+    {
+      "word": "doubts",
+      "definition": "Feelings of uncertainty or lack of conviction."
+    },
+    {
+      "word": "drafting",
+      "definition": "Preparing a preliminary version of (a text)."
+    },
+    {
+      "word": "dulcet",
+      "definition": "(Especially of sound) sweet and soothing."
+    },
+    {
+      "word": "dynamic",
+      "definition": "(Of a process or system) characterized by constant change, activity, or progress."
+    },
+    {
+      "word": "eclipse",
+      "definition": "An obscuring of the light from one celestial body by the passage of another between it and the observer or between it and its source of illumination."
+    },
+    {
+      "word": "edifice",
+      "definition": "A building, especially a large, imposing one."
+    },
+    {
+      "word": "Elizabethan",
+      "definition": "Relating to or characteristic of the reign of Queen Elizabeth I of England."
+    },
+    {
+      "word": "elusive",
+      "definition": "Difficult to find, catch, or achieve."
+    },
+    {
+      "word": "emigrate",
+      "definition": "Leave one's own country in order to settle permanently in another."
+    },
+    {
+      "word": "encourage",
+      "definition": "Give support, confidence, or hope to (someone)."
+    },
+    {
+      "word": "engulfs",
+      "definition": "(Of a natural force) sweeps over (something) so as to surround or cover it completely."
+    },
+    {
+      "word": "enhance",
+      "definition": "Intensify, increase, or further improve the quality, value, or extent of."
+    },
+    {
+      "word": "counterintuitive",
+      "definition": "Contrary to intuition or to common-sense expectation."
+    },
+    {
+      "word": "ensure",
+      "definition": "Make certain that (something) shall occur or be the case."
+    },
+    {
+      "word": "beneficiary",
+      "definition": "A person who derives advantage from something, especially a trust, will, or life insurance policy."
+    },
+    {
+      "word": "created",
+      "definition": "Brought (something) into existence."
+    },
+    {
+      "word": "enthusiasm for",
+      "definition": "Intense and eager enjoyment, interest, or approval for something."
+    },
+    {
+      "word": "benign",
+      "definition": "Gentle; kindly."
+    },
+    {
+      "word": "credited",
+      "definition": "Publicly acknowledged as a participant in the production of (something)."
+    },
+    {
+      "word": "epitomizing",
+      "definition": "Being a perfect example of."
+    },
+    {
+      "word": "binary",
+      "definition": "Relating to, composed of, or involving two things."
+    },
+    {
+      "word": "critical",
+      "definition": "Expressing adverse or disapproving comments or judgments."
+    },
+    {
+      "word": "equanimity",
+      "definition": "Mental calmness, composure, and evenness of temper, especially in a difficult situation."
+    },
+    {
+      "word": "bureaucratic",
+      "definition": "Relating to a system of government in which most of the important decisions are taken by state officials rather than by elected representatives."
+    },
+    {
+      "word": "decentralized",
+      "definition": "Transfer (authority) from central to local government."
+    },
+    {
+      "word": "establishes",
+      "definition": "Sets up (an organization, system, or set of rules) on a firm or permanent basis."
+    },
+    {
+      "word": "buttress",
+      "definition": "A source of defense or support."
+    },
+    {
+      "word": "deceptive",
+      "definition": "Giving an appearance or impression different from the true one; misleading."
+    },
+    {
+      "word": "etched",
+      "definition": "Engraved (a design) on a surface."
+    },
+    {
+      "word": "bystander",
+      "definition": "A person who is present at an event or incident but does not take part."
+    },
+    {
+      "word": "deciding",
+      "definition": "Coming to a resolution in the mind as a result of consideration."
+    },
+    {
+      "word": "evaluate",
+      "definition": "Form an idea of the amount, number, or value of; assess."
+    },
+    {
+      "word": "careful",
+      "definition": "Making sure of avoiding potential danger, mishap, or harm; cautious."
+    },
+    {
+      "word": "decisive",
+      "definition": "Settling an issue; producing a definite result."
+    },
+    {
+      "word": "evolving",
+      "definition": "Developing gradually, especially from a simple to a more complex form."
+    },
+    {
+      "word": "catastrophic",
+      "definition": "Involving or causing sudden great damage or suffering."
+    },
+    {
+      "word": "defends",
+      "definition": "Resists an attack made on (someone or something); protects from harm or danger."
+    },
+    {
+      "word": "exalt",
+      "definition": "Hold (someone or something) in very high regard; think or speak very highly of."
+    },
+    {
+      "word": "challenged",
+      "definition": "Disputed the truth or validity of."
+    },
+    {
+      "word": "delegate",
+      "definition": "Entrust (a task or responsibility) to another person."
+    },
+    {
+      "word": "exemplified",
+      "definition": "Was a typical example of."
+    },
+    {
+      "word": "characteristic",
+      "definition": "A feature or quality belonging typically to a person, place, or thing and serving to identify it."
+    },
+    {
+      "word": "delve",
+      "definition": "Reach inside a receptacle and search for something."
+    },
+    {
+      "word": "experiment with",
+      "definition": "Try out new concepts or ways of doing things."
+    },
+    {
+      "word": "circumvent",
+      "definition": "Find a way around (an obstacle)."
+    },
+    {
+      "word": "demands",
+      "definition": "Insistent and peremptory requests, made as if by right."
+    },
+    {
+      "word": "demonstrative",
+      "definition": "(Of a person) tending to show feelings, especially of affection, openly."
+    },
+    {
+      "word": "civilian",
+      "definition": "A person not in the armed services or the police force."
+    },
+    {
+      "word": "coincide",
+      "definition": "Occur at or during the same time."
+    },
+    {
+      "word": "denied",
+      "definition": "Stated that one refuses to admit the truth or existence of (something)."
+    },
+    {
+      "word": "derived from",
+      "definition": "Obtained something from (a specified source)."
+    },
+    {
+      "word": "collaborate",
+      "definition": "Work jointly on an activity, especially to produce or create something."
+    },
+    {
+      "word": "collected with",
+      "definition": "Gathered together; assembled."
+    },
+    {
+      "word": "deviates",
+      "definition": "Departs from an established course or accepted standard."
+    },
+    {
+      "word": "explains",
+      "definition": "Makes (an idea, situation, or problem) clear to someone by describing it in more detail or revealing relevant facts or ideas."
+    },
+    {
+      "word": "exquisite",
+      "definition": "Extremely beautiful and, typically, delicate."
+    },
+    {
+      "word": "extensive",
+      "definition": "Covering or affecting a large area."
+    },
+    {
+      "word": "fabricate",
+      "definition": "Invent or concoct (something), typically with deceitful intent."
+    },
+    {
+      "word": "fanciful",
+      "definition": "(Of a person or their thoughts and ideas) overimaginative and unrealistic."
+    },
+    {
+      "word": "dignity",
+      "definition": "The state or quality of being worthy of honor or respect."
+    },
+    {
+      "word": "fluctuate",
+      "definition": "Rise and fall irregularly in number or amount."
+    },
+    {
+      "word": "foreground",
+      "definition": "The part of a view that is nearest to the observer."
+    },
+    {
+      "word": "foretells",
+      "definition": "Predicts (the future or a future event)."
+    },
+    {
+      "word": "forge",
+      "definition": "Make or shape (a metal object) by heating it in a fire or furnace and beating or hammering it."
+    },
+    {
+      "word": "fortify",
+      "definition": "Strengthen (a place) with defensive works so as to protect it against attack."
+    },
+    {
+      "word": "foster",
+      "definition": "Encourage or promote the development of (something, typically something regarded as good)."
+    },
+    {
+      "word": "fruitless",
+      "definition": "Failing to achieve the desired results; unproductive or useless."
+    },
+    {
+      "word": "innocuous",
+      "definition": "Not harmful or offensive."
+    },
+    {
+      "word": "mystifying",
+      "definition": "Utterly bewildering or perplexing."
+    },
+    {
+      "word": "inspecting",
+      "definition": "Looking at (someone or something) closely, typically to assess their condition or to check for defects."
+    },
+    {
+      "word": "nanotubes",
+      "definition": "Microscopic tube-like structures."
+    },
+    {
+      "word": "inspirational",
+      "definition": "Providing or showing creative or spiritual inspiration."
+    },
+    {
+      "word": "neglect",
+      "definition": "Fail to care for properly."
+    },
+    {
+      "word": "interchangeable",
+      "definition": "(Of two things) able to be interchanged."
+    },
+    {
+      "word": "nondescript",
+      "definition": "Lacking distinctive or interesting features or characteristics."
+    },
+    {
+      "word": "interjected",
+      "definition": "Said (something) abruptly, especially as an aside or interruption."
+    },
+    {
+      "word": "novel",
+      "definition": "New or unusual in an interesting way."
+    },
+    {
+      "word": "Interminable",
+      "definition": "Endless (often used hyperbolically)."
+    },
+    {
+      "word": "nuanced",
+      "definition": "Characterized by subtle shades of meaning or expression."
+    },
+    {
+      "word": "interpret",
+      "definition": "Explain the meaning of (information, words, or actions)."
+    },
+    {
+      "word": "obscure",
+      "definition": "Not discovered or known about; uncertain."
+    },
+    {
+      "word": "fulfills",
+      "definition": "Brings to completion or reality; achieves or realizes (something desired, promised, or predicted)."
+    },
+    {
+      "word": "intertribal",
+      "definition": "Existing or occurring between different tribes."
+    },
+    {
+      "word": "germinate",
+      "definition": "(Of a seed or spore) begin to grow and put out shoots after a period of dormancy."
+    },
+    {
+      "word": "intricate",
+      "definition": "Very complicated or detailed."
+    },
+    {
+      "word": "observant",
+      "definition": "Quick to notice things."
+    },
+    {
+      "word": "obtained from",
+      "definition": "Got, acquired, or secured (something) from a source."
+    },
+    {
+      "word": "grapple",
+      "definition": "Engage in a close fight or struggle without weapons; wrestle."
+    },
+    {
+      "word": "intriguing",
+      "definition": "Arousing one's curiosity or interest; fascinating."
+    },
+    {
+      "word": "offhand",
+      "definition": "Ungraciously or dismissively casual or curt in manner."
+    },
+    {
+      "word": "guild",
+      "definition": "A medieval association of craftsmen or merchants, often having considerable power."
+    },
+    {
+      "word": "intuitive",
+      "definition": "Using or based on what one feels to be true even without conscious reasoning; instinctive."
+    },
+    {
+      "word": "handmade from",
+      "definition": "Made by hand, not by machine, and typically therefore of superior quality, from a specific material."
+    },
+    {
+      "word": "invalidate",
+      "definition": "Make (an argument, statement, or theory) unsound or erroneous."
+    },
+    {
+      "word": "haphazard",
+      "definition": "Lacking any obvious principle of organization."
+    },
+    {
+      "word": "inventive",
+      "definition": "Having or showing the ability to create or design new things or to think originally."
+    },
+    {
+      "word": "operative",
+      "definition": "Functioning; having effect."
+    },
+    {
+      "word": "ordinary",
+      "definition": "With no special or distinctive features; normal."
+    },
+    {
+      "word": "originates",
+      "definition": "Has a specified beginning."
+    },
+    {
+      "word": "hast",
+      "definition": "An archaic second-person singular present form of \"have.\""
+    },
+    {
+      "word": "invertebrate",
+      "definition": "An animal lacking a backbone."
+    },
+    {
+      "word": "ornamental",
+      "definition": "Serving or intended as an ornament; decorative."
+    },
+    {
+      "word": "healthy",
+      "definition": "In a good physical or mental condition."
+    },
+    {
+      "word": "involuntarily",
+      "definition": "Without willful control."
+    },
+    {
+      "word": "overcome",
+      "definition": "Succeed in dealing with (a problem or difficulty)."
+    },
+    {
+      "word": "hibernation",
+      "definition": "The condition or period of an animal or plant spending the winter in a dormant state."
+    },
+    {
+      "word": "hierarchical",
+      "definition": "Arranged in order of rank."
+    },
+    {
+      "word": "iridescent",
+      "definition": "Showing luminous colors that seem to change when seen from different angles."
+    },
+    {
+      "word": "overreacts",
+      "definition": "Responds more emotionally or forcibly than is justified."
+    },
+    {
+      "word": "irrelevant to",
+      "definition": "Not connected with or relevant to something."
+    },
+    {
+      "word": "hinder",
+      "definition": "Create difficulties for (someone or something), resulting in delay or obstruction."
+    },
+    {
+      "word": "jarring",
+      "definition": "Causing a physical shock, jolt, or vibration."
+    },
+    {
+      "word": "overshadowed by",
+      "definition": "Appeared much less important or prominent than."
+    },
+    {
+      "word": "paleobiologist",
+      "definition": "A scientist who studies the biology of fossil animals and plants."
+    },
+    {
+      "word": "hypothesize",
+      "definition": "Put (something) forward as a hypothesis (a proposed explanation)."
+    },
+    {
+      "word": "illustrate",
+      "definition": "Provide (a book, newspaper, etc.) with pictures."
+    },
+    {
+      "word": "juvenile",
+      "definition": "For or relating to young people."
+    },
+    {
+      "word": "laced",
+      "definition": "Fastened or tightened (a shoe or garment) with a lace or laces."
+    },
+    {
+      "word": "parasitic",
+      "definition": "(Of an organism) living as a parasite (an organism that lives in or on another organism (its host) and benefits by deriving nutrients at the host's expense)."
+    },
+    {
+      "word": "participatory",
+      "definition": "Involving or characterized by participation."
+    },
+    {
+      "word": "imitated",
+      "definition": "Copied (a person's speech or behavior, or a thing)."
+    },
+    {
+      "word": "lacking",
+      "definition": "Being without or deficient in."
+    },
+    {
+      "word": "paucity",
+      "definition": "The presence of something only in small or insufficient quantities or amounts; scarcity."
+    },
+    {
+      "word": "imminent",
+      "definition": "About to happen."
+    },
+    {
+      "word": "languish",
+      "definition": "(Of a person or other living thing) lose or lack vitality; grow weak or feeble."
+    },
+    {
+      "word": "payload",
+      "definition": "The part of a vehicle's load, especially an aircraft's, from which revenue is derived; passengers and cargo."
+    },
+    {
+      "word": "impartial",
+      "definition": "Treating all rivals or disputants equally; fair and just."
+    },
+    {
+      "word": "latent",
+      "definition": "(Of a quality or state) existing but not yet developed or manifest; hidden; concealed."
+    },
+    {
+      "word": "perceive",
+      "definition": "Become aware or conscious of (something); come to realize or understand."
+    },
+    {
+      "word": "impenetrable",
+      "definition": "Impossible to pass through or enter."
+    },
+    {
+      "word": "legitimacy",
+      "definition": "Conformity to the law or to rules."
+    },
+    {
+      "word": "peripheral",
+      "definition": "Relating to or situated on the edge or periphery of something."
+    },
+    {
+      "word": "imperceptible",
+      "definition": "Impossible to perceive."
+    },
+    {
+      "word": "legitimate",
+      "definition": "Conforming to the law or to rules."
+    },
+    {
+      "word": "persist",
+      "definition": "Continue firmly or obstinately in an opinion or a course of action in spite of difficulty, opposition, or failure."
+    },
+    {
+      "word": "implement",
+      "definition": "Put (a decision, plan, agreement, etc.) into effect."
+    },
+    {
+      "word": "likewise",
+      "definition": "In the same way; also."
+    },
+    {
+      "word": "persistent",
+      "definition": "Continuing firmly or obstinately in a course of action in spite of difficulty or opposition."
+    },
+    {
+      "word": "important",
+      "definition": "Of great significance or value."
+    },
+    {
+      "word": "localized",
+      "definition": "Restricted to a particular place."
+    },
+    {
+      "word": "personal",
+      "definition": "Of, affecting, or belonging to a particular person rather than to anyone else."
+    },
+    {
+      "word": "imposing",
+      "definition": "Grand and impressive in appearance."
+    },
+    {
+      "word": "mandates",
+      "definition": "Gives (someone) authority to act in a certain way."
+    },
+    {
+      "word": "pondering",
+      "definition": "Thinking about (something) carefully, especially before making a decision or reaching a conclusion."
+    },
+    {
+      "word": "impractical",
+      "definition": "(Of a course of action or plan) not adapted for use or action; not sensible or realistic."
+    },
+    {
+      "word": "improve on",
+      "definition": "Achieve or produce something better than."
+    },
+    {
+      "word": "improvise",
+      "definition": "Create and perform (music, drama, or verse) spontaneously or without preparation."
+    },
+    {
+      "word": "inadequate",
+      "definition": "Lacking the quality or quantity required; insufficient for a purpose."
+    },
+    {
+      "word": "inauguration",
+      "definition": "The beginning or introduction of a system, policy, or period."
+    },
+    {
+      "word": "indecipherable",
+      "definition": "Not able to be read or understood."
+    },
+    {
+      "word": "independent of",
+      "definition": "Not influenced or controlled by."
+    },
+    {
+      "word": "indicated by",
+      "definition": "Pointed out; shown by."
+    },
+    {
+      "word": "indifference",
+      "definition": "Lack of interest, concern, or sympathy."
+    },
+    {
+      "word": "indigenous",
+      "definition": "Originating or occurring naturally in a particular place; native."
+    },
+    {
+      "word": "inexplicable",
+      "definition": "Unable to be explained or accounted for."
+    },
+    {
+      "word": "infrequent",
+      "definition": "Not occurring often; rare."
+    },
+    {
+      "word": "inherent",
+      "definition": "Existing in something as a permanent, essential, or characteristic attribute."
+    },
+    {
+      "word": "mandatory",
+      "definition": "Required by law or rules; compulsory."
+    },
+    {
+      "word": "manifesto",
+      "definition": "A public declaration of policy and aims, especially one issued before an election by a political party or candidate."
+    },
+    {
+      "word": "mastery over",
+      "definition": "Comprehensive knowledge or skill in a subject or accomplishment."
+    },
+    {
+      "word": "melancholy",
+      "definition": "A feeling of pensive sadness, typically with no obvious cause."
+    },
+    {
+      "word": "melodic",
+      "definition": "Of, relating to, or having a pleasing sound."
+    },
+    {
+      "word": "porous",
+      "definition": "(Of a rock or other material) having minute spaces or holes through which liquid or air may pass."
+    },
+    {
+      "word": "portal",
+      "definition": "A doorway, gate, or other entrance, especially a large and elaborate one."
+    },
+    {
+      "word": "portraiture",
+      "definition": "The art of creating portraits."
+    },
+    {
+      "word": "posit",
+      "definition": "Put forward as fact or as a basis for argument."
+    },
+    {
+      "word": "pragmatic",
+      "definition": "Dealing with things sensibly and realistically in a way that is based on practical rather than theoretical considerations."
+    },
+    {
+      "word": "methodology",
+      "definition": "A system of methods used in a particular area of study or activity."
+    },
+    {
+      "word": "mimic",
+      "definition": "Imitate (someone or their actions or words), especially in order to entertain or ridicule."
+    },
+    {
+      "word": "predation",
+      "definition": "The preying of one animal on others."
+    },
+    {
+      "word": "predatory",
+      "definition": "(Of an animal) preying naturally on others."
+    },
+    {
+      "word": "mirth",
+      "definition": "Amusement, especially as expressed in laughter."
+    },
+    {
+      "word": "misrepresent",
+      "definition": "Give a false or misleading account of the nature of."
+    },
+    {
+      "word": "predecessor",
+      "definition": "A person who held a job or office before the current holder."
+    },
+    {
+      "word": "predetermined",
+      "definition": "Established or decided in advance."
+    },
+    {
+      "word": "moderation",
+      "definition": "The avoidance of excess or extremes."
+    },
+    {
+      "word": "monarch",
+      "definition": "A sovereign head of state, especially a king, queen, or emperor."
+    },
+    {
+      "word": "predicted",
+      "definition": "Said or estimated that (a specified thing) would happen in the future or will be a consequence of something."
+    },
+    {
+      "word": "premeditated",
+      "definition": "(Of an action, especially a crime) thought out or planned beforehand."
+    },
+    {
+      "word": "moreover",
+      "definition": "As a further matter; besides."
+    },
+    {
+      "word": "preponderance",
+      "definition": "The quality or fact of being greater in number, quantity, or importance."
+    },
+    {
+      "word": "mutation",
+      "definition": "The action or process of mutating (changing in form or nature)."
+    },
+    {
+      "word": "prescribed",
+      "definition": "Recommended (a substance or action) as something beneficial."
+    },
+    {
+      "word": "prestige",
+      "definition": "Widespread respect and admiration felt for someone or something on the basis of a perception of their achievements or quality."
+    },
+    {
+      "word": "reprise",
+      "definition": "A repeated passage in music."
+    },
+    {
+      "word": "presume",
+      "definition": "Suppose that something is the case on the basis of probability."
+    },
+    {
+      "word": "presupposes",
+      "definition": "(Of a statement or belief) requires as a precondition."
+    },
+    {
+      "word": "prevail",
+      "definition": "Prove more powerful than opposing forces; be victorious."
+    },
+    {
+      "word": "repudiate",
+      "definition": "Refuse to accept or be associated with."
+    },
+    {
+      "word": "repulsed",
+      "definition": "Driven back (an attack or attacking enemy) by force."
+    },
+    {
+      "word": "require",
+      "definition": "Need for a particular purpose."
+    },
+    {
+      "word": "prevalent",
+      "definition": "Widespread in a particular area at a particular time."
+    },
+    {
+      "word": "resilient",
+      "definition": "(Of a substance or object) able to spring back into shape after bending, stretching, or being compressed."
+    },
+    {
+      "word": "preventable",
+      "definition": "Able to be prevented or avoided."
+    },
+    {
+      "word": "respectively",
+      "definition": "Separately or individually and in the order already mentioned."
+    },
+    {
+      "word": "proclaims",
+      "definition": "Announces officially or publicly."
+    },
+    {
+      "word": "responsiveness to",
+      "definition": "The quality of reacting quickly and positively to."
+    },
+    {
+      "word": "supplement",
+      "definition": "Something that completes or enhances something else when added to it."
+    },
+    {
+      "word": "supposition",
+      "definition": "An uncertain belief."
+    },
+    {
+      "word": "surmise",
+      "definition": "Suppose that something is true without having evidence to confirm it."
+    },
+    {
+      "word": "surpassed by",
+      "definition": "Been greater than or exceeded by."
+    },
+    {
+      "word": "surprise at",
+      "definition": "An unexpected or astonishing event, fact, or thing."
+    },
+    {
+      "word": "synchronization",
+      "definition": "The operation or activity of two or more things at the same time or rate."
+    },
+    {
+      "word": "tenuous",
+      "definition": "Very weak or slight."
+    },
+    {
+      "word": "produced",
+      "definition": "Made or manufactured from components or raw materials."
+    },
+    {
+      "word": "restored",
+      "definition": "Brought back (a previous right, practice, or situation)."
+    },
+    {
+      "word": "tenure",
+      "definition": "The conditions under which land or buildings are held or occupied."
+    },
+    {
+      "word": "profound",
+      "definition": "(Of a state, quality, or emotion) very great or intense."
+    },
+    {
+      "word": "restrained",
+      "definition": "Characterized by reserve or moderation; unemotional or dispassionate."
+    },
+    {
+      "word": "thrive",
+      "definition": "(Of a child, animal, or plant) grow or develop well or vigorously."
+    },
+    {
+      "word": "profusion",
+      "definition": "An abundance or large quantity of something."
+    },
+    {
+      "word": "retaliates",
+      "definition": "Makes an attack or assault in return for a similar attack."
+    },
+    {
+      "word": "tolerate",
+      "definition": "Allow the existence, occurrence, or practice of (something that one does not necessarily like or agree with) without interference."
+    },
+    {
+      "word": "prominently",
+      "definition": "With an important role; to a large extent."
+    },
+    {
+      "word": "revitalization",
+      "definition": "The action of imbuing something with new life and vitality."
+    },
+    {
+      "word": "tranquilly",
+      "definition": "In a way that is free from disturbance; calmly."
+    },
+    {
+      "word": "proponent",
+      "definition": "A person who advocates a theory, proposal, or project."
+    },
+    {
+      "word": "ricocheting",
+      "definition": "(Of a bullet, shell, or other projectile) rebounding one or more times off a surface."
+    },
+    {
+      "word": "transcending",
+      "definition": "Being or going beyond the range or limits of (something)."
+    },
+    {
+      "word": "prosocial",
+      "definition": "Relating to or denoting behavior that is positive, helpful, and intended to promote social acceptance and friendship."
+    },
+    {
+      "word": "provokes",
+      "definition": "Stimulates or gives rise to (a reaction or emotion, typically a strong or unwelcome one) in someone."
+    },
+    {
+      "word": "quarrel about",
+      "definition": "Have an angry argument or disagreement about."
+    },
+    {
+      "word": "question",
+      "definition": "A sentence worded so as to elicit information."
+    },
+    {
+      "word": "questioned",
+      "definition": "Asked (someone) questions."
+    },
+    {
+      "word": "Rosetta Stone",
+      "definition": "A stone inscribed with a decree, which provided the key to understanding Egyptian hieroglyphs."
+    },
+    {
+      "word": "rotunda",
+      "definition": "A round building or room, especially one with a dome."
+    },
+    {
+      "word": "rudimentary",
+      "definition": "Involving or limited to basic principles."
+    },
+    {
+      "word": "unanimity",
+      "definition": "Agreement by all people involved; consensus."
+    },
+    {
+      "word": "undeniable",
+      "definition": "Unable to be denied or disputed."
+    },
+    {
+      "word": "underestimated",
+      "definition": "Regarded or represented as less important, valuable, or significant than is really the case."
+    },
+    {
+      "word": "underscore",
+      "definition": "Underline (something)."
+    },
+    {
+      "word": "sampler",
+      "definition": "A piece of embroidery worked in various stitches as a specimen of skill, typically containing the alphabet and some mottoes."
+    },
+    {
+      "word": "satisfactory",
+      "definition": "Fulfilling expectations or needs; acceptable, though not outstanding or perfect."
+    },
+    {
+      "word": "ungainliness",
+      "definition": "The quality of being awkward or clumsy."
+    },
+    {
+      "word": "react to",
+      "definition": "Act in response to."
+    },
+    {
+      "word": "satisfying",
+      "definition": "Giving fulfillment or pleasure."
+    },
+    {
+      "word": "unimportant",
+      "definition": "Lacking in importance or significance."
+    },
+    {
+      "word": "rebut",
+      "definition": "Claim or prove that (evidence or an accusation) is false."
+    },
+    {
+      "word": "recant",
+      "definition": "Say that one no longer holds an opinion or belief, especially one considered heretical."
+    },
+    {
+      "word": "scholarly",
+      "definition": "Involving or relating to serious academic study."
+    },
+    {
+      "word": "unintended",
+      "definition": "Not planned or meant."
+    },
+    {
+      "word": "secretive",
+      "definition": "(Of a person or organization) inclined to conceal feelings and intentions or not to disclose information."
+    },
+    {
+      "word": "universal",
+      "definition": "Of, affecting, or done by all people or things in the world or in a particular group; applicable to all cases."
+    },
+    {
+      "word": "receive",
+      "definition": "Be given, presented with, or paid (something)."
+    },
+    {
+      "word": "selects",
+      "definition": "Carefully chooses as being the best or most suitable."
+    },
+    {
+      "word": "unknown",
+      "definition": "Not known or familiar."
+    },
+    {
+      "word": "receptor",
+      "definition": "An organ or cell able to respond to light, heat, or other external stimulus and transmit a signal to a sensory nerve."
+    },
+    {
+      "word": "shortcomings",
+      "definition": "Faults or failures to meet a certain standard."
+    },
+    {
+      "word": "unobtrusive",
+      "definition": "Not conspicuous or attracting attention."
+    },
+    {
+      "word": "reciprocate",
+      "definition": "Respond to (a gesture or action) by making a corresponding one."
+    },
+    {
+      "word": "recognizable",
+      "definition": "Able to be recognized or identified from previous knowledge or experience."
+    },
+    {
+      "word": "significant",
+      "definition": "Sufficiently great or important to be worthy of attention; noteworthy."
+    },
+    {
+      "word": "unoriginal",
+      "definition": "Lacking originality; derivative."
+    },
+    {
+      "word": "simple",
+      "definition": "Easily understood or done; presenting no difficulty."
+    },
+    {
+      "word": "unpredictable",
+      "definition": "Not able to be predicted; changeable."
+    },
+    {
+      "word": "recount",
+      "definition": "Tell someone about something; give an account of an event or experience."
+    },
+    {
+      "word": "situate",
+      "definition": "Fix or build (something) in a particular place or position."
+    },
+    {
+      "word": "useful",
+      "definition": "Able to be used for a practical purpose or in several ways."
+    },
+    {
+      "word": "reflect",
+      "definition": "(Of a surface or body) throw back (heat, light, or sound) without absorbing it."
+    },
+    {
+      "word": "skeptical",
+      "definition": "Not easily convinced; having doubts or reservations."
+    },
+    {
+      "word": "validate",
+      "definition": "Check or prove the validity or accuracy of (something)."
+    },
+    {
+      "word": "refute",
+      "definition": "Prove (a statement or theory) to be wrong or false; disprove."
+    },
+    {
+      "word": "smoothly",
+      "definition": "With no problems or difficulties."
+    },
+    {
+      "word": "speculate",
+      "definition": "Form a theory or conjecture about a subject without firm evidence."
+    },
+    {
+      "word": "regret",
+      "definition": "Feel sad, repentant, or disappointed over (something that has happened or been done, especially a loss or missed opportunity)."
+    },
+    {
+      "word": "reinforcing",
+      "definition": "Strengthening or supporting, especially with additional personnel or material."
+    },
+    {
+      "word": "standard",
+      "definition": "A level of quality or attainment."
+    },
+    {
+      "word": "relate",
+      "definition": "Make or show a connection between."
+    },
+    {
+      "word": "relentless",
+      "definition": "Unceasingly intense."
+    },
+    {
+      "word": "remember",
+      "definition": "Have in or be able to bring to one's mind an awareness of (someone or something that one has seen, known, or experienced in the past)."
+    },
+    {
+      "word": "renounce",
+      "definition": "Formally declare one's abandonment of (a claim, right, or possession)."
+    },
+    {
+      "word": "replenishes",
+      "definition": "Fills (something) up again."
+    },
+    {
+      "word": "replicable",
+      "definition": "Able to be copied or reproduced."
+    },
+    {
+      "word": "representative",
+      "definition": "Typical of a class, group, or body of opinion."
+    },
+    {
+      "word": "repressed by",
+      "definition": "Subdued (someone or something) by force."
+    },
+    {
+      "word": "strenuously",
+      "definition": "In a way that requires great effort or energy."
+    },
+    {
+      "word": "struggling",
+      "definition": "Striving to achieve or attain something in the face of difficulty or resistance."
+    },
+    {
+      "word": "study",
+      "definition": "The devotion of time and attention to acquiring knowledge on an academic subject, especially by means of books."
+    },
+    {
+      "word": "subsequent",
+      "definition": "Coming after something in time; following."
+    },
+    {
+      "word": "subsist",
+      "definition": "Maintain or support oneself, especially at a minimal level."
+    },
+    {
+      "word": "subsistence",
+      "definition": "The action or fact of maintaining or supporting oneself at a minimum level."
+    },
+    {
+      "word": "substantial",
+      "definition": "Of considerable importance, size, or worth."
+    },
+    {
+      "word": "succumb",
+      "definition": "Fail to resist (pressure, temptation, or some other negative force)."
+    },
+    {
+      "word": "variable",
+      "definition": "Not consistent or having a fixed pattern; liable to change."
+    },
+    {
+      "word": "verisimilitude",
+      "definition": "The appearance of being true or real."
+    },
+    {
+      "word": "veteran",
+      "definition": "A person who has had long experience in a particular field."
+    },
+    {
+      "word": "vigor",
+      "definition": "Physical strength and good health."
+    },
+    {
+      "word": "waive",
+      "definition": "Refrain from insisting on or using (a right or claim)."
+    },
+    {
+      "word": "wayward",
+      "definition": "Difficult to control or predict because of unusual or perverse behavior."
+    },
+    {
+      "word": "widespread",
+      "definition": "Found or distributed over a large area or number of people."
+    },
+    {
+      "word": "withdraw",
+      "definition": "Remove or take away (something) from a particular place or position."
+    },
+    {
+      "word": "worried",
+      "definition": "Feeling or showing anxiety about actual or potential problems."
+    }
+  ]
