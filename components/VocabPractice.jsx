@@ -30,6 +30,9 @@ export default function VocabPractice() {
   const [isSwipeActive, setIsSwipeActive] = useState(false);
   const [activeTab, setActiveTab] = useState("all"); // "all", "starred", "wrong"
   const [practiceMode, setPracticeMode] = useState(false); // true when practicing wrong answers only
+  const [isFlipped, setIsFlipped] = useState(false); // true when showing definition
+  const [showWordFirst, setShowWordFirst] = useState(true); // true = word first, false = definition first
+  const [isShuffled, setIsShuffled] = useState(false); // true when cards are shuffled
 
   // Load vocab data and progress
   useEffect(() => {
@@ -81,6 +84,15 @@ export default function VocabPractice() {
       baseWords = vocabWords.filter(word => starredWords.has(word.word));
     } else if (activeTab === "wrong") {
       baseWords = vocabWords.filter(word => unknownWords.has(word.word));
+    } else if (activeTab === "unseen") {
+      baseWords = vocabWords.filter(word => 
+        !knownWords.has(word.word) && !unknownWords.has(word.word)
+      );
+    }
+    
+    // Shuffle if enabled
+    if (isShuffled) {
+      baseWords = [...baseWords].sort(() => Math.random() - 0.5);
     }
     
     // Then filter by search term
@@ -93,13 +105,24 @@ export default function VocabPractice() {
       );
       setFilteredWords(filtered);
     }
-  }, [searchTerm, vocabWords, activeTab, starredWords, unknownWords]);
+  }, [searchTerm, vocabWords, activeTab, starredWords, unknownWords, knownWords, isShuffled]);
 
   // Reset index only when changing tabs or search
   useEffect(() => {
     setCurrentWordIndex(0);
-    setShowDefinition(false);
+    setIsFlipped(false);
   }, [activeTab, searchTerm]);
+
+  // Handle bounds checking when filtered words change
+  useEffect(() => {
+    if (filteredWords.length > 0 && currentWordIndex >= filteredWords.length) {
+      // If current index is out of bounds, reset to last valid index
+      setCurrentWordIndex(Math.max(0, filteredWords.length - 1));
+    } else if (filteredWords.length === 0) {
+      // If no words available, reset to 0
+      setCurrentWordIndex(0);
+    }
+  }, [filteredWords.length, currentWordIndex]);
 
   // Handle hover animation
   useEffect(() => {
@@ -203,21 +226,42 @@ export default function VocabPractice() {
 
   // Navigation functions
   const nextWord = () => {
-    setCurrentWordIndex(prev => {
-      const nextIndex = prev < filteredWords.length - 1 ? prev + 1 : 0;
-      return nextIndex;
-    });
-    setShowDefinition(false);
-    setSwipeDirection(null);
-    setIsSwipeActive(false);
+    safeNavigate('next');
   };
 
   const prevWord = () => {
+    safeNavigate('prev');
+  };
+
+  // Flashcard functions
+  const flipCard = () => {
+    setIsFlipped(!isFlipped);
+  };
+
+  const toggleDirection = () => {
+    setShowWordFirst(!showWordFirst);
+    setIsFlipped(false); // Reset flip state when changing direction
+  };
+
+  const toggleShuffle = () => {
+    setIsShuffled(!isShuffled);
+    setCurrentWordIndex(0); // Reset to first card when shuffling
+    setIsFlipped(false);
+  };
+
+  // Safe navigation function that handles bounds checking
+  const safeNavigate = (direction) => {
     setCurrentWordIndex(prev => {
-      const prevIndex = prev > 0 ? prev - 1 : filteredWords.length - 1;
-      return prevIndex;
+      const maxIndex = filteredWords.length - 1;
+      if (maxIndex < 0) return 0; // No words available
+      
+      if (direction === 'next') {
+        return prev < maxIndex ? prev + 1 : 0; // Wrap to beginning
+      } else {
+        return prev > 0 ? prev - 1 : maxIndex; // Wrap to end
+      }
     });
-    setShowDefinition(false);
+    setIsFlipped(false);
     setSwipeDirection(null);
     setIsSwipeActive(false);
   };
@@ -239,6 +283,12 @@ export default function VocabPractice() {
         newSet.delete(wordKey);
         return newSet;
       });
+      
+      // Go to first word when marking as known
+      setCurrentWordIndex(0);
+      setIsFlipped(false);
+      setSwipeDirection(null);
+      setIsSwipeActive(false);
     }
   };
 
@@ -258,6 +308,9 @@ export default function VocabPractice() {
         newSet.delete(wordKey);
         return newSet;
       });
+      
+      // Use safe navigation to handle bounds checking
+      safeNavigate('next');
     }
   };
 
@@ -316,7 +369,7 @@ export default function VocabPractice() {
           break;
         case ' ':
           event.preventDefault();
-          setShowDefinition(!showDefinition);
+          flipCard();
           break;
         case 's':
           if (event.ctrlKey || event.metaKey) {
@@ -329,7 +382,7 @@ export default function VocabPractice() {
 
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [currentWord, showDefinition]);
+  }, [currentWord, flipCard]);
 
   if (loading) {
     return (
@@ -427,49 +480,6 @@ export default function VocabPractice() {
             </div>
           )}
 
-          {/* Tabs */}
-          <div className="mb-6">
-            <div className="flex gap-2 mb-4">
-              <motion.button
-                onClick={() => setActiveTab("all")}
-                className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
-                  activeTab === "all"
-                    ? "bg-primary text-white"
-                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                }`}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                All Words ({vocabWords.length})
-              </motion.button>
-              <motion.button
-                onClick={() => setActiveTab("starred")}
-                className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
-                  activeTab === "starred"
-                    ? "bg-yellow-500 text-white"
-                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                }`}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <FaStar className="inline mr-1" />
-                Starred ({starredWords.size})
-              </motion.button>
-              <motion.button
-                onClick={() => setActiveTab("wrong")}
-                className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
-                  activeTab === "wrong"
-                    ? "bg-red-500 text-white"
-                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                }`}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <FaTimes className="inline mr-1" />
-                Wrong ({unknownWords.size})
-              </motion.button>
-            </div>
-          </div>
 
           {/* Search Bar */}
           <div className="mb-6">
@@ -500,7 +510,12 @@ export default function VocabPractice() {
           <div className="mb-6">
             <div className="flex flex-wrap gap-2">
               <motion.button
-                className="px-4 py-2 bg-primary text-white rounded-lg font-semibold"
+                onClick={() => setActiveTab("all")}
+                className={`px-4 py-2 rounded-lg font-semibold ${
+                  activeTab === "all" 
+                    ? "bg-primary text-white" 
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                }`}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, ease: "circOut" }}
@@ -520,7 +535,12 @@ export default function VocabPractice() {
                 Known ({knownWords.size})
               </motion.button>
               <motion.button
-                className="px-4 py-2 bg-red-600 text-white rounded-lg font-semibold"
+                onClick={() => setActiveTab("wrong")}
+                className={`px-4 py-2 rounded-lg font-semibold ${
+                  activeTab === "wrong" 
+                    ? "bg-red-600 text-white" 
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                }`}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, ease: "circOut" }}
@@ -530,7 +550,27 @@ export default function VocabPractice() {
                 Unknown ({unknownWords.size})
               </motion.button>
               <motion.button
-                className="px-4 py-2 bg-yellow-600 text-white rounded-lg font-semibold flex items-center gap-1"
+                onClick={() => setActiveTab("unseen")}
+                className={`px-4 py-2 rounded-lg font-semibold ${
+                  activeTab === "unseen" 
+                    ? "bg-blue-600 text-white" 
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                }`}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, ease: "circOut" }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Unseen ({vocabWords.length - knownWords.size - unknownWords.size})
+              </motion.button>
+              <motion.button
+                onClick={() => setActiveTab("starred")}
+                className={`px-4 py-2 rounded-lg font-semibold flex items-center gap-1 ${
+                  activeTab === "starred" 
+                    ? "bg-yellow-600 text-white" 
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                }`}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, ease: "circOut" }}
@@ -622,7 +662,13 @@ export default function VocabPractice() {
                 <div className="text-center flex my-auto flex-col">
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="text-xl font-bold text-secondary">
-                      {showDefinition ? "Definition:" : "Word:"}
+                      {(() => {
+                        if (showWordFirst) {
+                          return isFlipped ? "Definition:" : "Word:";
+                        } else {
+                          return isFlipped ? "Word:" : "Definition:";
+                        }
+                      })()}
                     </h3>
                     <motion.button
                       onClick={toggleStar}
@@ -637,9 +683,22 @@ export default function VocabPractice() {
                       <FaStar className={`text-xl ${starredWords.has(currentWord.word) ? 'fill-current' : ''}`} />
                     </motion.button>
                   </div>
-                  <p className="text-lg mb-4 font-semibold text-secondary">
-                    {showDefinition ? currentWord.definition : currentWord.word}
-                  </p>
+                  <motion.div
+                    className="cursor-pointer"
+                    onClick={flipCard}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <p className="text-lg mb-4 font-semibold text-secondary">
+                      {(() => {
+                        if (showWordFirst) {
+                          return isFlipped ? currentWord.definition : currentWord.word;
+                        } else {
+                          return isFlipped ? currentWord.word : currentWord.definition;
+                        }
+                      })()}
+                    </p>
+                  </motion.div>
                   <div className="flex items-center justify-center gap-4 text-sm text-gray-500">
                     <span>{currentWordIndex + 1} of {filteredWords.length}</span>
                     {knownWords.has(currentWord.word) && (
@@ -719,82 +778,73 @@ export default function VocabPractice() {
             </div>
           )}
 
-          {/* Navigation Buttons */}
+          {/* Flashcard Controls */}
           {filteredWords.length > 0 && (
-            <div className="flex justify-between items-center mt-6">
+            <div className="flex justify-center gap-4 mt-6">
+              <motion.button
+                onClick={flipCard}
+                className="px-6 py-3 bg-blue-500 text-white rounded-lg font-semibold flex items-center gap-2"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                🔄 Flip Card
+                <span className="text-sm opacity-75">(Space)</span>
+              </motion.button>
+              <motion.button
+                onClick={toggleDirection}
+                className={`px-6 py-3 rounded-lg font-semibold flex items-center gap-2 ${
+                  showWordFirst 
+                    ? 'bg-purple-500 text-white' 
+                    : 'bg-gray-200 text-gray-700 hover:bg-purple-100'
+                }`}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                {showWordFirst ? '📖 Word First' : '📝 Definition First'}
+              </motion.button>
+              <motion.button
+                onClick={toggleShuffle}
+                className={`px-6 py-3 rounded-lg font-semibold flex items-center gap-2 ${
+                  isShuffled 
+                    ? 'bg-orange-500 text-white' 
+                    : 'bg-gray-200 text-gray-700 hover:bg-orange-100'
+                }`}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                🔀 {isShuffled ? 'Shuffled' : 'Shuffle'}
+              </motion.button>
+            </div>
+          )}
+
+          {/* Navigation Controls */}
+          {filteredWords.length > 0 && (
+            <div className="flex justify-center gap-4 mt-4">
               <motion.button
                 onClick={prevWord}
-                className="text-secondary text-lg font-bold px-6 py-2"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{
-                  opacity: 1,
-                  y: 0,
-                  transition: { duration: 0.4, delay: 0.2 },
-                }}
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.98 }}
+                className="px-6 py-3 bg-gray-500 text-white rounded-lg font-semibold flex items-center gap-2"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
-                <GlassComponents 
-                  className="px-3 py-2 rounded shadow-sm flex justify-center items-center" 
-                  width="auto" 
-                  height="auto" 
-                  borderRadius={20}
-                  borderWidth={0.03}
-                  backgroundOpacity={0.1}
-                  saturation={1}
-                  brightness={50}
-                  opacity={0.93}
-                  blur={22}
-                  displace={0.5}
-                  distortionScale={-180}
-                  redOffset={0}
-                  greenOffset={10}
-                  blueOffset={20}
-                  mixBlendMode="screen"
-                >
-                  ← Previous
-                </GlassComponents>
+                ← Previous
               </motion.button>
-
-              <div className="text-center">
-                <p className="text-lg font-semibold text-secondary">
-                  {currentWordIndex + 1} / {filteredWords.length}
-                </p>
-              </div>
-
               <motion.button
                 onClick={nextWord}
-                className="text-secondary text-lg font-bold px-6 py-2"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{
-                  opacity: 1,
-                  y: 0,
-                  transition: { duration: 0.4, delay: 0.3 },
-                }}
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.98 }}
+                className="px-6 py-3 bg-gray-500 text-white rounded-lg font-semibold flex items-center gap-2"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
-                <GlassComponents 
-                  className="px-3 py-2 rounded shadow-sm flex justify-center items-center" 
-                  width="auto" 
-                  height="auto" 
-                  borderRadius={20}
-                  borderWidth={0.03}
-                  backgroundOpacity={0.1}
-                  saturation={1}
-                  brightness={50}
-                  opacity={0.93}
-                  blur={22}
-                  displace={0.5}
-                  distortionScale={-180}
-                  redOffset={0}
-                  greenOffset={10}
-                  blueOffset={20}
-                  mixBlendMode="screen"
-                >
-                  Next →
-                </GlassComponents>
+                Next →
               </motion.button>
+            </div>
+          )}
+
+          {/* Word Counter */}
+          {filteredWords.length > 0 && (
+            <div className="mt-4 text-center">
+              <p className="text-lg font-semibold text-secondary">
+                {currentWordIndex + 1} / {filteredWords.length}
+              </p>
             </div>
           )}
 
