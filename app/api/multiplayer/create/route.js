@@ -83,6 +83,7 @@ export async function POST(request) {
       game: {
         id: game.id,
         gameCode: game.gameCode,
+        creatorId: game.creatorId,
         category: game.category,
         questionType: game.questionType,
         numRounds: game.numRounds,

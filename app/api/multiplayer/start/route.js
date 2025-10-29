@@ -78,6 +78,7 @@ export async function POST(request) {
     // Load questions and generate first question
     try {
       // For serverless compatibility, fetch from public URL
+      // Use the same question file as singleplayer mode
       const questionFileName = game.category === 'math' 
         ? 'questions_math.json'
         : 'questions_reading.json';

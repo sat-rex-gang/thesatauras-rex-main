@@ -79,6 +79,7 @@ export async function POST(request) {
         game: {
           id: game.id,
           gameCode: game.gameCode,
+          creatorId: game.creatorId,
           category: game.category,
           questionType: game.questionType,
           numRounds: game.numRounds,
@@ -136,6 +137,7 @@ export async function POST(request) {
       game: {
         id: updatedGame.id,
         gameCode: updatedGame.gameCode,
+        creatorId: updatedGame.creatorId,
         category: updatedGame.category,
         questionType: updatedGame.questionType,
         numRounds: updatedGame.numRounds,
