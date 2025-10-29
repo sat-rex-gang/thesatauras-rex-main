@@ -55,7 +55,7 @@ export async function POST(request) {
       }
     }
 
-    // Create game
+    // Create game with creator as player
     const game = await prisma.multiplayerGame.create({
       data: {
         gameCode,
@@ -65,16 +65,26 @@ export async function POST(request) {
         numRounds: numRounds || 5,
         gameMode: gameMode || 'fast',
         timeLimit: gameMode === 'timed' ? (timeLimit || 30) : null,
-        status: 'waiting'
-      }
-    });
-
-    // Add creator as player
-    await prisma.multiplayerPlayer.create({
-      data: {
-        userId: decoded.userId,
-        gameId: game.id,
-        isReady: false
+        status: 'waiting',
+        players: {
+          create: {
+            userId: decoded.userId,
+            isReady: false
+          }
+        }
+      },
+      include: {
+        players: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                username: true,
+                firstName: true
+              }
+            }
+          }
+        }
       }
     });
 
@@ -89,7 +99,14 @@ export async function POST(request) {
         numRounds: game.numRounds,
         gameMode: game.gameMode,
         timeLimit: game.timeLimit,
-        status: game.status
+        status: game.status,
+        players: game.players.map(p => ({
+          id: p.userId,
+          username: p.user.username,
+          firstName: p.user.firstName,
+          score: p.score,
+          isReady: p.isReady
+        }))
       }
     });
   } catch (error) {

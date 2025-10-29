@@ -64,13 +64,17 @@ export async function GET(request) {
       }
     });
 
-    // Get singleplayer stats from practice tests
-    // Note: Full question tracking would require storing in DB
+    // Get singleplayer stats - use totalQuestionsAnswered from user table
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.userId },
+      select: {
+        totalQuestionsAnswered: true
+      }
+    });
+
     const practiceTests = await prisma.practiceTest.findMany({
       where: { userId: decoded.userId }
     });
-
-    const totalQuestionsAnswered = practiceTests.reduce((sum, test) => sum + (test.score || 0), 0);
 
     return NextResponse.json({
       success: true,
@@ -82,14 +86,24 @@ export async function GET(request) {
         winRate: multiplayerGames.length > 0 ? Math.round((wins / multiplayerGames.length) * 100) : 0
       },
       singleplayer: {
-        totalQuestionsAnswered: 0, // Will be calculated client-side from localStorage
+        totalQuestionsAnswered: user?.totalQuestionsAnswered || 0,
         totalTests: practiceTests.length
       }
     });
   } catch (error) {
     console.error('Error fetching stats:', error);
+    console.error('Error details:', {
+      message: error.message,
+      stack: error.stack,
+      code: error.code
+    });
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { 
+        error: 'Internal server error',
+        ...(process.env.NODE_ENV !== 'production' && {
+          details: error.message
+        })
+      },
       { status: 500 }
     );
   }
