@@ -162,7 +162,7 @@ model MultiplayerGame {
   // Game state
   status       String   @default("waiting") // "waiting", "active", "finished", "forfeited"
   currentRound Int      @default(0)
-  currentQuestion JSON? // Current question data
+  currentQuestion String? // JSON string of current question data
   questions    String   @default("[]") // JSON array of question indices
   
   // Timer state (for timed mode)
