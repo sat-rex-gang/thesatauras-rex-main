@@ -93,8 +93,22 @@ export async function POST(request) {
     });
   } catch (error) {
     console.error('Error creating game:', error);
+    console.error('Error stack:', error.stack);
+    console.error('Error message:', error.message);
+    
+    // Provide more detailed error in development
+    const errorMessage = process.env.NODE_ENV === 'production' 
+      ? 'Internal server error' 
+      : error.message || 'Internal server error';
+    
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { 
+        error: errorMessage,
+        ...(process.env.NODE_ENV !== 'production' && { 
+          details: error.stack,
+          errorName: error.name 
+        })
+      },
       { status: 500 }
     );
   }

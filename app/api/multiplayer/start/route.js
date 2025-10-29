@@ -96,6 +96,8 @@ export async function POST(request) {
       
       const questionUrl = `${baseUrl}/${questionFileName}`;
       
+      console.log('Fetching questions from:', questionUrl);
+      
       const response = await fetch(questionUrl);
       if (!response.ok) {
         return NextResponse.json(
