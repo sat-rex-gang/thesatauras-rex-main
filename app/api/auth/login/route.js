@@ -52,7 +52,7 @@ export async function POST(request) {
       bio: user.bio,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
-      totalQuestionsAnswered: user.totalQuestionsAnswered || 0
+      ...(user.totalQuestionsAnswered !== undefined && { totalQuestionsAnswered: user.totalQuestionsAnswered })
     }
 
     return NextResponse.json({
