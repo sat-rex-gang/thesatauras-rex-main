@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import NavLinks from "../components/NavLinks";
 import { BsPersonBadge } from "react-icons/bs";
 import GradientText from "./GradientText";
@@ -11,6 +11,8 @@ import GlassNavbar from "./GlassNavbar";
 export default function NavBar() {
   const [isOpen, setIsOpen] = useState(false);
   const { user, isAuthenticated, logout } = useAuth();
+  const menuRef = useRef(null);
+  const buttonRef = useRef(null);
 
   const toggleButton = () => {
     setIsOpen(!isOpen);
@@ -20,6 +22,31 @@ export default function NavBar() {
     logout();
     setIsOpen(false);
   };
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        isOpen &&
+        menuRef.current &&
+        buttonRef.current &&
+        !menuRef.current.contains(event.target) &&
+        !buttonRef.current.contains(event.target)
+      ) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("touchstart", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+    };
+  }, [isOpen]);
 
   return (
     <>
@@ -51,7 +78,7 @@ export default function NavBar() {
                   animationSpeed={8}
                   showBorder={false}
                 >
-                  theSATauras
+                  SATsaurus
                 </GradientText>
               </a>
             </span>
@@ -102,10 +129,14 @@ export default function NavBar() {
                     whileHover={{ y: -3 }}
                   >
                     <div className="text-center flex flex-col items-center justify-center mt-2">
-                      <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold text-lg">
-                        {user?.firstName?.charAt(0) ||
+                      <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold text-lg overflow-hidden">
+                        {user?.profilePicture ? (
+                          <img src={user.profilePicture} alt="Profile" className="w-full h-full object-cover" />
+                        ) : (
+                          user?.firstName?.charAt(0) ||
                           user?.username?.charAt(0) ||
-                          "U"}
+                          "U"
+                        )}
                       </div>
                       <p className="text-xs text-gray-600 mt-1 hidden sm:block">
                         {user?.firstName || user?.username}
@@ -114,6 +145,7 @@ export default function NavBar() {
                   </motion.div>
                 )}
                 <motion.button
+                  ref={buttonRef}
                   className="z-[100] flex flex-col items-center justify-center"
                   initial={false}
                   onClick={toggleButton}
@@ -194,6 +226,7 @@ export default function NavBar() {
       <AnimatePresence>
         {isOpen && (
           <motion.div
+            ref={menuRef}
             key="dropdown"
             className={`fixed top-[130px] right-1/2 translate-x-1/2 sm:right-[calc(50%-30vw)] sm:translate-x-0 z-[9999] ${
               isAuthenticated ? "h-[550px]" : "h-[225px]"
@@ -298,6 +331,7 @@ export default function NavBar() {
               exit={{ opacity: 0 }}
               className="fixed inset-0 bg-black/30 backdrop-blur-xs z-[100]"
               key={isOpen}
+              onClick={() => setIsOpen(false)}
             />
           </>
         )}

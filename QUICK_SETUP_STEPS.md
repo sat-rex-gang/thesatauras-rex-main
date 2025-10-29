@@ -6,7 +6,7 @@
 2. Click **"Start your project"** or **"Sign in"**
 3. Click **"New project"**
 4. Fill in:
-   - **Name**: Your project name (e.g., "theSATauras")
+   - **Name**: Your project name (e.g., "SATsaurus")
    - **Database Password**: Create a strong password (SAVE THIS!)
    - **Region**: Choose closest to you
 5. Click **"Create new project"**

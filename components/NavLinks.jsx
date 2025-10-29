@@ -24,24 +24,24 @@ const fileLinksAuth = [
     fileName: "dashboard",
   },
   {
-    filePath: "/vocab",
-    fileName: "vocab",
-  },
-  {
-    filePath: "/leaderboards",
-    fileName: "leaderboards",
-  },
-  {
-    filePath: "/questions",
-    fileName: "questions",
+    filePath: "/profile",
+    fileName: "profile",
   },
   {
     filePath: "/multiplayer",
     fileName: "multiplayer",
   },
   {
-    filePath: "/contacts",
-    fileName: "Contact Us",
+    filePath: "/questions",
+    fileName: "questions",
+  },
+  {
+    filePath: "/vocab",
+    fileName: "vocab",
+  },
+  {
+    filePath: "/leaderboards",
+    fileName: "leaderboards",
   },
 ];
 

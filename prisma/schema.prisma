@@ -14,14 +14,17 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  username  String   @unique
-  password  String
-  firstName String?
-  lastName  String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String   @id @default(cuid())
+  email         String   @unique
+  username      String   @unique
+  password      String
+  firstName     String?
+  lastName      String?
+  profilePicture String? // URL or base64 for profile picture
+  bio           String?  // User biography
+  totalQuestionsAnswered Int @default(0) // Track total single player questions answered
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   // SAT-related fields
   satScores     SatScore[]
@@ -164,6 +167,7 @@ model MultiplayerGame {
   currentRound Int      @default(0)
   currentQuestion String? // JSON string of current question data
   questions    String   @default("[]") // JSON array of question indices
+  gameQuestions String? // JSON array of all questions used in the game (for history)
   
   // Timer state (for timed mode)
   questionStartTime DateTime?
@@ -188,6 +192,7 @@ model MultiplayerPlayer {
   answeredAt   DateTime?
   isReady      Boolean  @default(false)
   hasForfeited Boolean  @default(false)
+  wantsRematch Boolean  @default(false)
   
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt

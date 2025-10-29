@@ -30,6 +30,8 @@ export async function GET(request) {
         username: true,
         firstName: true,
         lastName: true,
+        profilePicture: true,
+        bio: true,
         createdAt: true,
         updatedAt: true,
         satScores: {

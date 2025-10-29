@@ -130,6 +130,9 @@ export async function POST(request) {
       // Take only as many as we need
       const selectedIndices = questionIndices.slice(0, game.numRounds);
       
+      // Get actual questions for history
+      const selectedQuestions = selectedIndices.map(idx => filteredQuestions[idx]);
+      
       // Get first question
       const firstQuestionIndex = selectedIndices[0];
       const firstQuestion = filteredQuestions[firstQuestionIndex];
@@ -143,7 +146,8 @@ export async function POST(request) {
           roundStartTime: new Date(),
           questionStartTime: new Date(),
           currentQuestion: JSON.stringify(firstQuestion),
-          questions: JSON.stringify(selectedIndices)
+          questions: JSON.stringify(selectedIndices),
+          gameQuestions: JSON.stringify(selectedQuestions) // Store actual questions for history
         }
       });
 

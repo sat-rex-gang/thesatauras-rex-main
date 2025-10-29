@@ -79,6 +79,36 @@ export async function GET(request, { params }) {
         : game.currentQuestion;
     }
 
+    // Calculate winner if game is finished
+    let winner = null;
+    if (game.status === 'finished' || game.status === 'forfeited') {
+      // For forfeited games, the winner is the player who didn't forfeit
+      if (game.status === 'forfeited') {
+        const nonForfeitedPlayer = game.players.find(p => !p.hasForfeited);
+        if (nonForfeitedPlayer) {
+          winner = {
+            userId: nonForfeitedPlayer.userId,
+            id: nonForfeitedPlayer.userId,
+            score: nonForfeitedPlayer.score
+          };
+        }
+      } else {
+        // For finished games, determine winner by highest score
+        const sortedPlayers = [...game.players].sort((a, b) => b.score - a.score);
+        const topScore = sortedPlayers[0].score;
+        const winners = sortedPlayers.filter(p => p.score === topScore);
+        
+        // Only set winner if there's a clear winner (not a tie)
+        if (winners.length === 1) {
+          winner = {
+            userId: winners[0].userId,
+            id: winners[0].userId,
+            score: winners[0].score
+          };
+        }
+      }
+    }
+
     return NextResponse.json({
       success: true,
       game: {
@@ -95,6 +125,7 @@ export async function GET(request, { params }) {
         currentQuestion,
         questionStartTime: game.questionStartTime,
         roundStartTime: game.roundStartTime,
+        winner,
         players: game.players.map(p => ({
           id: p.userId,
           username: p.user.username,
@@ -103,7 +134,8 @@ export async function GET(request, { params }) {
           currentAnswer: p.currentAnswer,
           answeredAt: p.answeredAt,
           isReady: p.isReady,
-          hasForfeited: p.hasForfeited
+          hasForfeited: p.hasForfeited,
+          wantsRematch: p.wantsRematch || false
         }))
       }
     });

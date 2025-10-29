@@ -28,6 +28,9 @@ const MultiplayerMode = () => {
   const [selectedAnswer, setSelectedAnswer] = useState("");
   const [timeRemaining, setTimeRemaining] = useState(null);
   const [pollInterval, setPollInterval] = useState(null);
+  const [gameHistory, setGameHistory] = useState([]);
+  const [selectedGame, setSelectedGame] = useState(null);
+  const [loadingHistory, setLoadingHistory] = useState(false);
 
   const timerRef = useRef(null);
 
@@ -73,6 +76,9 @@ const MultiplayerMode = () => {
         // Handle game state changes
         if (updatedGame.status === "finished" && screen !== "finished") {
           handleGameEnd(updatedGame);
+        } else if (updatedGame.status === "waiting" && screen === "finished") {
+          // Rematch created - move to waiting room
+          setScreen("waiting");
         } else if (updatedGame.status === "active" && screen === "waiting") {
           setScreen("playing");
           if (updatedGame.currentQuestion) {
@@ -87,6 +93,22 @@ const MultiplayerMode = () => {
           }
         } else if (updatedGame.status === "forfeited") {
           handleGameEnd(updatedGame);
+        }
+
+        // Check if both players want rematch - auto-create rematch
+        if (screen === "finished" && updatedGame.players) {
+          const rematchReady = updatedGame.players.filter(p => p.wantsRematch).length;
+          if (rematchReady === 2 && updatedGame.status === "finished") {
+            // Both ready - create rematch (only one player should trigger to avoid race condition)
+            // The player who clicked first will create it
+            const currentPlayerReady = updatedGame.players.find(p => p.userId === user?.id)?.wantsRematch;
+            if (currentPlayerReady) {
+              // Small delay to let the other player's request complete first
+              setTimeout(() => {
+                createRematch();
+              }, 500);
+            }
+          }
         }
       }
     } catch (err) {
@@ -119,7 +141,7 @@ const MultiplayerMode = () => {
 
   // Start polling when in game
   useEffect(() => {
-    if ((screen === "waiting" || screen === "playing") && game?.gameCode) {
+    if ((screen === "waiting" || screen === "playing" || screen === "finished") && game?.gameCode) {
       const interval = setInterval(pollGameState, 2000); // Poll every 2 seconds
       setPollInterval(interval);
       return () => {
@@ -129,15 +151,15 @@ const MultiplayerMode = () => {
     }
   }, [screen, game?.gameCode]);
 
-  // Handle time running out in timed mode - just poll to get updated state
+  // Handle time running out in timed mode - automatically advance to next round
   useEffect(() => {
-    if (timeRemaining === 0 && game?.gameMode === "timed" && screen === "playing") {
-      // Time's up - poll to get updated state (players can still click Next Round)
+    if (timeRemaining === 0 && game?.gameMode === "timed" && screen === "playing" && game?.status === "active") {
+      // Time's up - automatically move to next round
       setTimeout(() => {
-        pollGameState();
-      }, 500);
+        nextRound();
+      }, 1000); // Wait 1 second to show final state, then auto-advance
     }
-  }, [timeRemaining, game?.gameMode, screen]);
+  }, [timeRemaining, game?.gameMode, screen, game?.status]);
 
   // Create game
   const createGame = async () => {
@@ -375,6 +397,27 @@ const MultiplayerMode = () => {
     if (timerRef.current) clearInterval(timerRef.current);
   };
 
+  // Fetch game history
+  const fetchGameHistory = async () => {
+    setLoadingHistory(true);
+    try {
+      const response = await fetch("/api/multiplayer/game-history", {
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setGameHistory(data.games || []);
+      }
+    } catch (err) {
+      console.error("Error fetching game history:", err);
+    } finally {
+      setLoadingHistory(false);
+    }
+  };
+
   // Main menu screen
   if (screen === "main") {
     return (
@@ -409,7 +452,7 @@ const MultiplayerMode = () => {
             blueOffset={20}
             mixBlendMode="screen"
           >
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
               <motion.button
                 onClick={() => setScreen("create")}
                 whileHover={{ scale: 1.05 }}
@@ -425,6 +468,17 @@ const MultiplayerMode = () => {
                 className="bg-green-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-green-700 transition-colors"
               >
                 Join Game
+              </motion.button>
+              <motion.button
+                onClick={() => {
+                  fetchGameHistory();
+                  setScreen("history");
+                }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="bg-blue-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-blue-700 transition-colors"
+              >
+                Game History
               </motion.button>
             </div>
           </GlassComponents>
@@ -906,13 +960,317 @@ const MultiplayerMode = () => {
     );
   }
 
+  // Create rematch
+  const createRematch = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch("/api/multiplayer/rematch", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ gameCode: game.gameCode })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setGame(data.game);
+        setGameCode(data.game.gameCode);
+        setScreen("waiting");
+        setCurrentQuestion(null);
+        setSelectedAnswer("");
+        setTimeRemaining(null);
+      }
+    } catch (err) {
+      console.error("Error creating rematch:", err);
+      setError("Failed to create rematch. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Request rematch
+  const requestRematch = async () => {
+    try {
+      const response = await fetch("/api/multiplayer/rematch-ready", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ gameCode: game.gameCode })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        await pollGameState();
+        
+        // If both players are ready, create rematch automatically
+        if (data.rematchReadyCount === 2) {
+          await createRematch();
+        }
+      }
+    } catch (err) {
+      console.error("Error requesting rematch:", err);
+    }
+  };
+
+  // Game History screen
+  if (screen === "history") {
+    return (
+      <div className="min-h-screen pt-24 sm:pt-32 pb-8 px-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="mb-6">
+            <button
+              onClick={() => setScreen("main")}
+              className="mb-4 text-gray-600 hover:text-gray-800 transition-colors flex items-center gap-2"
+            >
+              <span>←</span>
+              <span>Back to Main Menu</span>
+            </button>
+            <h1 className="text-3xl font-bold text-gray-900">Game History</h1>
+          </div>
+
+          {loadingHistory ? (
+            <div className="text-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+              <p className="mt-4 text-gray-600">Loading game history...</p>
+            </div>
+          ) : selectedGame ? (
+            // Show selected game details and questions
+            <div>
+              <button
+                onClick={() => setSelectedGame(null)}
+                className="mb-4 text-gray-600 hover:text-gray-800 transition-colors flex items-center gap-2"
+              >
+                <span>←</span>
+                <span>Back to History</span>
+              </button>
+              <GlassComponents
+                className="rounded-lg p-8 mb-6"
+                width="100%"
+                height="auto"
+                borderRadius={20}
+                borderWidth={0.03}
+                backgroundOpacity={0.1}
+                saturation={1}
+                brightness={50}
+                opacity={0.93}
+                blur={22}
+                displace={0.5}
+                distortionScale={-180}
+                redOffset={0}
+                greenOffset={10}
+                blueOffset={20}
+                mixBlendMode="screen"
+              >
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                  Game vs {selectedGame.opponent?.firstName || selectedGame.opponent?.username || "Unknown"}
+                </h2>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                  <div>
+                    <p className="text-sm text-gray-600">Your Score</p>
+                    <p className="text-2xl font-bold text-primary">{selectedGame.userScore}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Opponent Score</p>
+                    <p className="text-2xl font-bold text-gray-900">{selectedGame.opponentScore}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Result</p>
+                    <p className={`text-xl font-bold ${
+                      selectedGame.winner === 'user' ? 'text-green-600' :
+                      selectedGame.winner === 'opponent' ? 'text-red-600' :
+                      'text-gray-600'
+                    }`}>
+                      {selectedGame.winner === 'user' ? 'Win ✓' :
+                       selectedGame.winner === 'opponent' ? 'Loss ✗' :
+                       'Tie'}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Date</p>
+                    <p className="text-sm font-medium text-gray-900">
+                      {new Date(selectedGame.createdAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                </div>
+
+                <h3 className="text-xl font-bold text-gray-900 mb-4">Questions from this Game</h3>
+                <div className="space-y-4">
+                  {selectedGame.questions && selectedGame.questions.length > 0 ? (
+                    selectedGame.questions.map((question, index) => (
+                      <GlassComponents
+                        key={index}
+                        className="rounded-lg p-4 sm:p-6"
+                        width="100%"
+                        height="auto"
+                        borderRadius={20}
+                        borderWidth={0.03}
+                        backgroundOpacity={0.1}
+                        saturation={1}
+                        brightness={50}
+                        opacity={0.93}
+                        blur={22}
+                        displace={0.5}
+                        distortionScale={-180}
+                        redOffset={0}
+                        greenOffset={10}
+                        blueOffset={20}
+                        mixBlendMode="screen"
+                      >
+                        <div className="mb-4">
+                          <span className="text-xs sm:text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                            Question {index + 1}
+                          </span>
+                          <span className="ml-2 text-xs sm:text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                            {question.Topic?.replace(/_/g, ' ') || 'Unknown Topic'}
+                          </span>
+                        </div>
+                        <div className="mb-4">
+                          <p className="text-sm sm:text-base text-gray-900 leading-relaxed">
+                            {question.Question}
+                          </p>
+                        </div>
+                        <div className="mt-4">
+                          <p className="text-xs font-medium text-gray-600 mb-2">Answer Choices:</p>
+                          <div className="space-y-2">
+                            {question.Choices?.map((choice, choiceIndex) => {
+                              const choiceLetter = choice.split('.')[0];
+                              const isCorrectAnswer = choiceLetter === question.Answer;
+                              return (
+                                <div
+                                  key={choiceIndex}
+                                  className={`p-2 rounded text-xs ${
+                                    isCorrectAnswer
+                                      ? 'bg-green-100 border border-green-300 text-green-800'
+                                      : 'bg-gray-50 border border-gray-200 text-gray-700'
+                                  }`}
+                                >
+                                  <span className="font-medium">{choice}</span>
+                                  {isCorrectAnswer && <span className="ml-2 text-green-700">✓ Correct Answer</span>}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </GlassComponents>
+                    ))
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      <p>No questions available for this game.</p>
+                    </div>
+                  )}
+                </div>
+              </GlassComponents>
+            </div>
+          ) : (
+            // Show list of games
+            <div className="space-y-4">
+              {gameHistory.length > 0 ? (
+                gameHistory.map((game) => (
+                  <motion.div
+                    key={game.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    whileHover={{ scale: 1.01 }}
+                  >
+                    <GlassComponents
+                      className="rounded-lg p-6 cursor-pointer"
+                      width="100%"
+                      height="auto"
+                      borderRadius={20}
+                      borderWidth={0.03}
+                      backgroundOpacity={0.1}
+                      saturation={1}
+                      brightness={50}
+                      opacity={0.93}
+                      blur={22}
+                      displace={0.5}
+                      distortionScale={-180}
+                      redOffset={0}
+                      greenOffset={10}
+                      blueOffset={20}
+                      mixBlendMode="screen"
+                      onClick={() => setSelectedGame(game)}
+                    >
+                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <h3 className="text-lg font-bold text-gray-900">
+                              vs {game.opponent?.firstName || game.opponent?.username || "Unknown"}
+                            </h3>
+                            <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                              game.winner === 'user' ? 'bg-green-100 text-green-700' :
+                              game.winner === 'opponent' ? 'bg-red-100 text-red-700' :
+                              'bg-gray-100 text-gray-700'
+                            }`}>
+                              {game.winner === 'user' ? 'Win' :
+                               game.winner === 'opponent' ? 'Loss' :
+                               'Tie'}
+                            </span>
+                          </div>
+                          <p className="text-sm text-gray-600">
+                            {game.gameMode === 'fast' ? 'Fast Mode' : `Timed Mode (${game.timeLimit}s)`} • {game.numRounds} rounds
+                          </p>
+                          <p className="text-xs text-gray-500 mt-1">
+                            {new Date(game.createdAt).toLocaleDateString()} {new Date(game.createdAt).toLocaleTimeString()}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-6">
+                          <div className="text-center">
+                            <p className="text-sm text-gray-600">You</p>
+                            <p className="text-2xl font-bold text-primary">{game.userScore}</p>
+                          </div>
+                          <div className="text-gray-400">-</div>
+                          <div className="text-center">
+                            <p className="text-sm text-gray-600">Opponent</p>
+                            <p className="text-2xl font-bold text-gray-900">{game.opponentScore}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </GlassComponents>
+                  </motion.div>
+                ))
+              ) : (
+                <div className="text-center py-12 text-gray-500">
+                  <div className="text-4xl mb-4">📜</div>
+                  <p className="text-lg font-medium">No game history yet!</p>
+                  <p className="text-sm">Play some games to see your history here.</p>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   // Finished screen
   if (screen === "finished" && game) {
     const currentPlayer = game.players?.find(p => p.id === user?.id);
     const otherPlayer = game.players?.find(p => p.id !== user?.id);
-    const winner = game.winner;
-    const isWinner = winner && (winner.userId === user?.id || winner.id === user?.id);
-    const isTie = currentPlayer?.score === otherPlayer?.score;
+    
+    // Determine winner - check winner object first, then compare scores
+    let isWinner = false;
+    let isTie = false;
+    
+    if (game.winner) {
+      // Use winner object if available
+      isWinner = game.winner.userId === user?.id || game.winner.id === user?.id;
+    } else if (currentPlayer && otherPlayer) {
+      // Fallback: compare scores
+      if (currentPlayer.score > otherPlayer.score) {
+        isWinner = true;
+      } else if (currentPlayer.score === otherPlayer.score) {
+        isTie = true;
+      }
+    }
+
+    // Count rematch ready players
+    const rematchReadyCount = game.players?.filter(p => p.wantsRematch).length || 0;
+    const isReadyForRematch = currentPlayer?.wantsRematch || false;
 
     return (
       <div className="min-h-screen pt-24 sm:pt-32 pb-8 px-4 flex items-center justify-center">
@@ -944,33 +1302,49 @@ const MultiplayerMode = () => {
             </h2>
 
             <div className="grid grid-cols-2 gap-6 mb-8">
-              <div className={`p-6 rounded-lg ${isWinner ? "bg-green-50 border-2 border-green-300" : "bg-gray-50"}`}>
+              <div className={`p-6 rounded-lg ${isWinner && !isTie ? "bg-green-50 border-2 border-green-300" : "bg-gray-50"}`}>
                 <p className="font-semibold text-gray-700 mb-2">
                   {currentPlayer?.firstName || currentPlayer?.username || "You"}
                 </p>
-                <p className={`text-3xl font-bold ${isWinner ? "text-green-600" : "text-gray-600"}`}>
+                <p className={`text-3xl font-bold ${isWinner && !isTie ? "text-green-600" : "text-gray-600"}`}>
                   {currentPlayer?.score || 0}
                 </p>
               </div>
-              <div className={`p-6 rounded-lg ${!isWinner && !isTie ? "bg-green-50 border-2 border-green-300" : "bg-gray-50"}`}>
+              <div className={`p-6 rounded-lg ${!isWinner && !isTie && otherPlayer ? "bg-green-50 border-2 border-green-300" : "bg-gray-50"}`}>
                 <p className="font-semibold text-gray-700 mb-2">
                   {otherPlayer?.firstName || otherPlayer?.username || "Opponent"}
                 </p>
-                <p className={`text-3xl font-bold ${!isWinner && !isTie ? "text-green-600" : "text-gray-600"}`}>
+                <p className={`text-3xl font-bold ${!isWinner && !isTie && otherPlayer ? "text-green-600" : "text-gray-600"}`}>
                   {otherPlayer?.score || 0}
                 </p>
               </div>
             </div>
 
+            {/* Rematch Status */}
+            {rematchReadyCount > 0 && (
+              <div className="mb-4 p-3 bg-blue-50 text-blue-800 rounded-lg text-sm">
+                {rematchReadyCount}/2 players ready for rematch
+              </div>
+            )}
+
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <motion.button
-                onClick={resetGame}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="bg-primary text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-primary-dark transition-colors"
-              >
-                Play Again
-              </motion.button>
+              {!isReadyForRematch ? (
+                <motion.button
+                  onClick={requestRematch}
+                  disabled={loading}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="bg-primary text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-primary-dark transition-colors disabled:opacity-50"
+                >
+                  {loading ? "Starting..." : "Play Again"}
+                </motion.button>
+              ) : (
+                <motion.div
+                  className="bg-green-100 text-green-800 px-8 py-4 rounded-lg text-lg font-semibold"
+                >
+                  Waiting for other player...
+                </motion.div>
+              )}
               <motion.button
                 onClick={() => setScreen("main")}
                 whileHover={{ scale: 1.05 }}

@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "TheSATauras, Premium SAT Tutoring",
+  title: "SATsaurus, Premium SAT Tutoring",
   description:
     "Leading a generation of test-takers to crush the national average.",
 };

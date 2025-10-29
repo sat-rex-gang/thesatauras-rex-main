@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import GlassComponents from "./GlassComponents";
 
-const SinglePlayerMode = ({ questionFile, title, description, questionType }) => {
+const SinglePlayerMode = ({ questionFile, title, description, questionType, onBack }) => {
   const [questions, setQuestions] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState("");
@@ -19,6 +19,7 @@ const SinglePlayerMode = ({ questionFile, title, description, questionType }) =>
   const [gameStarted, setGameStarted] = useState(false);
   const [gameCompleted, setGameCompleted] = useState(false);
   const [activeTab, setActiveTab] = useState("quiz");
+  const [previousTab, setPreviousTab] = useState("quiz");
   const [loading, setLoading] = useState(true);
   const [hasSavedProgress, setHasSavedProgress] = useState(false);
 
@@ -347,6 +348,19 @@ const SinglePlayerMode = ({ questionFile, title, description, questionType }) =>
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-6">
+          {/* Back button to category selection */}
+          {gameStarted && onBack && (
+            <motion.button
+              onClick={onBack}
+              className="mb-4 px-4 py-2 rounded-lg font-medium transition-colors text-sm bg-gray-200 text-gray-700 hover:bg-gray-300 flex items-center gap-2"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <span>←</span>
+              <span>Back to Categories</span>
+            </motion.button>
+          )}
+          
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
             <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
               Question {currentQuestionIndex + 1} of {questions.length}
@@ -367,9 +381,27 @@ const SinglePlayerMode = ({ questionFile, title, description, questionType }) =>
           </div>
 
           {/* Tabs */}
-          <div className="flex flex-wrap gap-2 mb-4">
+          <div className="flex flex-wrap gap-2 mb-4 items-center">
+            {/* Back arrow - show when not on quiz tab */}
+            {activeTab !== "quiz" && (
+              <motion.button
+                onClick={() => {
+                  setActiveTab(previousTab);
+                }}
+                className="px-3 py-2 rounded-lg font-medium transition-colors text-sm bg-gray-200 text-gray-700 hover:bg-gray-300 flex items-center gap-1"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                title={`Back to ${previousTab === "quiz" ? "Quiz" : previousTab.charAt(0).toUpperCase() + previousTab.slice(1)}`}
+              >
+                <span>←</span>
+                <span>Back</span>
+              </motion.button>
+            )}
             <button
-              onClick={() => setActiveTab("quiz")}
+              onClick={() => {
+                if (activeTab !== "quiz") setPreviousTab(activeTab);
+                setActiveTab("quiz");
+              }}
               className={`px-3 py-2 rounded-lg font-medium transition-colors text-sm ${
                 activeTab === "quiz"
                   ? "bg-primary text-white"
@@ -379,7 +411,10 @@ const SinglePlayerMode = ({ questionFile, title, description, questionType }) =>
               Quiz
             </button>
             <button
-              onClick={() => setActiveTab("correct")}
+              onClick={() => {
+                if (activeTab !== "correct") setPreviousTab(activeTab);
+                setActiveTab("correct");
+              }}
               className={`px-3 py-2 rounded-lg font-medium transition-colors text-sm ${
                 activeTab === "correct"
                   ? "bg-green-600 text-white"
@@ -389,7 +424,10 @@ const SinglePlayerMode = ({ questionFile, title, description, questionType }) =>
               Correct ({correctAnswers.length})
             </button>
             <button
-              onClick={() => setActiveTab("wrong")}
+              onClick={() => {
+                if (activeTab !== "wrong") setPreviousTab(activeTab);
+                setActiveTab("wrong");
+              }}
               className={`px-3 py-2 rounded-lg font-medium transition-colors text-sm ${
                 activeTab === "wrong"
                   ? "bg-red-600 text-white"
@@ -399,7 +437,10 @@ const SinglePlayerMode = ({ questionFile, title, description, questionType }) =>
               Wrong ({wrongAnswers.length})
             </button>
             <button
-              onClick={() => setActiveTab("starred")}
+              onClick={() => {
+                if (activeTab !== "starred") setPreviousTab(activeTab);
+                setActiveTab("starred");
+              }}
               className={`px-3 py-2 rounded-lg font-medium transition-colors text-sm ${
                 activeTab === "starred"
                   ? "bg-yellow-600 text-white"
@@ -410,7 +451,10 @@ const SinglePlayerMode = ({ questionFile, title, description, questionType }) =>
             </button>
             {gameCompleted && (
               <button
-                onClick={() => setActiveTab("results")}
+                onClick={() => {
+                  if (activeTab !== "results") setPreviousTab(activeTab);
+                  setActiveTab("results");
+                }}
                 className={`px-3 py-2 rounded-lg font-medium transition-colors text-sm ${
                   activeTab === "results"
                     ? "bg-blue-600 text-white"
@@ -450,8 +494,34 @@ const SinglePlayerMode = ({ questionFile, title, description, questionType }) =>
                 mixBlendMode="screen"
               >
                 <div className="mb-6">
-                  <div className="text-sm font-medium text-gray-600 mb-3 bg-gray-50 px-3 py-2 rounded-lg">
-                    <span className="font-semibold">Topic:</span> {currentQuestion.Topic}
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="text-sm font-medium text-gray-600 bg-gray-50 px-3 py-2 rounded-lg">
+                      <span className="font-semibold">Topic:</span> {currentQuestion.Topic}
+                    </div>
+                    <motion.button
+                      onClick={() => {
+                        const questionResult = {
+                          ...currentQuestion,
+                          userAnswer: selectedAnswer,
+                          isCorrect: currentQuestion.Answer === selectedAnswer,
+                          questionNumber: currentQuestionIndex + 1,
+                        };
+                        toggleStar(questionResult);
+                      }}
+                      className={`p-2 rounded-full transition-colors ${
+                        starredQuestions.some(q => 
+                          q.Question === currentQuestion.Question || 
+                          q.question === currentQuestion.Question
+                        )
+                          ? 'text-yellow-500 bg-yellow-100'
+                          : 'text-gray-400 hover:text-yellow-500 hover:bg-yellow-50'
+                      }`}
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      title="Star this question"
+                    >
+                      ⭐
+                    </motion.button>
                   </div>
                   <h2 className="text-base sm:text-lg font-semibold text-gray-900 mb-4 leading-relaxed">
                     {currentQuestion.Question}
@@ -961,6 +1031,11 @@ const SinglePlayerMode = ({ questionFile, title, description, questionType }) =>
                 <h2 className="text-3xl font-bold text-gray-900 mb-6">
                   Quiz Complete! 🎉
                 </h2>
+                <p>
+                  <h1>
+                    <button>Start quiz <span>Again</span></button>
+                  </h1>
+                </p>
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                   <div className="bg-blue-50 p-6 rounded-lg">

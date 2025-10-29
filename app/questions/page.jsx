@@ -99,6 +99,7 @@ export default function Questions() {
         title={`${selectedReadingType.name} Practice`}
         description={selectedReadingType.description}
         questionType={selectedReadingType.id}
+        onBack={() => setSelectedReadingType(null)}
       />
     );
   }
