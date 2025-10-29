@@ -16,10 +16,10 @@ export async function POST(request) {
       )
     }
 
-    // Find user by email
+    // Find user by email - now includes all columns
     const user = await prisma.user.findUnique({
       where: { email }
-    })
+    });
 
     if (!user) {
       return NextResponse.json(
@@ -41,19 +41,8 @@ export async function POST(request) {
     // Generate JWT token
     const token = generateToken(user.id)
 
-    // Return user data (without password) - only select fields we need
-    const userWithoutPassword = {
-      id: user.id,
-      email: user.email,
-      username: user.username,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      profilePicture: user.profilePicture,
-      bio: user.bio,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-      ...(user.totalQuestionsAnswered !== undefined && { totalQuestionsAnswered: user.totalQuestionsAnswered })
-    }
+    // Return user data (without password) - include all fields now
+    const { password: _, ...userWithoutPassword } = user;
 
     return NextResponse.json({
       message: 'Login successful',
