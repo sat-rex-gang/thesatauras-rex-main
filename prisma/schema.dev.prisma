@@ -24,7 +24,10 @@ model User {
   satScores     SatScore[]
   practiceTests PracticeTest[]
   vocabProgress VocabProgress[]
+  vocabState    VocabState?
   flashcardProgress UserFlashcardProgress[]
+  multiplayerGamesCreated MultiplayerGame[] @relation("GameCreator")
+  multiplayerGamePlayers MultiplayerPlayer[]
 
   @@map("users")
 }
@@ -119,4 +122,73 @@ model UserFlashcardProgress {
 
   @@unique([userId, flashcardId])
   @@map("user_flashcard_progress")
+}
+
+model VocabState {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  currentIndex  Int      @default(0)
+  activeTab     String   @default("unseen")
+  searchTerm    String   @default("")
+  showWordFirst Boolean  @default(true)
+  isShuffled    Boolean  @default(false)
+  knownWords    String   @default("[]")
+  unknownWords  String   @default("[]")
+  starredWords  String   @default("[]")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("vocab_state")
+}
+
+model MultiplayerGame {
+  id           String   @id @default(cuid())
+  gameCode     String   @unique // 6-digit code
+  creatorId    String
+  creator      User     @relation("GameCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+  players      MultiplayerPlayer[]
+  
+  // Game settings
+  category     String   // "math" or "english"
+  questionType String?  // Specific section/topic
+  numRounds    Int      @default(5)
+  gameMode     String   @default("fast") // "fast" or "timed"
+  timeLimit    Int?     // Seconds per question (for timed mode)
+  
+  // Game state
+  status       String   @default("waiting") // "waiting", "active", "finished", "forfeited"
+  currentRound Int      @default(0)
+  currentQuestion String? // JSON string of current question
+  questions    String   @default("[]") // JSON array of question indices
+  
+  // Timer state (for timed mode)
+  questionStartTime DateTime?
+  roundStartTime    DateTime?
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  @@map("multiplayer_games")
+}
+
+model MultiplayerPlayer {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  gameId       String
+  game         MultiplayerGame @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  
+  // Player state
+  score        Int      @default(0)
+  currentAnswer String? // Current round answer
+  answeredAt   DateTime?
+  isReady      Boolean  @default(false)
+  hasForfeited Boolean  @default(false)
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  @@unique([userId, gameId])
+  @@map("multiplayer_players")
 }

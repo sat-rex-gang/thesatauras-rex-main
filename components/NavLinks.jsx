@@ -36,6 +36,10 @@ const fileLinksAuth = [
     fileName: "questions",
   },
   {
+    filePath: "/multiplayer",
+    fileName: "multiplayer",
+  },
+  {
     filePath: "/contacts",
     fileName: "Contact Us",
   },
