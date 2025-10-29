@@ -14,17 +14,7 @@ export async function GET(request) {
               }
             }
           }
-        },
-        practiceTests: true
-      },
-      select: {
-        id: true,
-        username: true,
-        firstName: true,
-        lastName: true,
-        profilePicture: true,
-        totalQuestionsAnswered: true,
-        multiplayerGamePlayers: true
+        }
       }
     });
 
@@ -53,7 +43,8 @@ export async function GET(request) {
       });
 
       // Get total questions answered from the user's totalQuestionsAnswered field
-      const totalQuestionsAnswered = user.totalQuestionsAnswered || 0;
+      // Default to 0 if field doesn't exist (for backward compatibility)
+      const totalQuestionsAnswered = (user.totalQuestionsAnswered !== undefined && user.totalQuestionsAnswered !== null) ? user.totalQuestionsAnswered : 0;
 
       return {
         id: user.id,
@@ -90,8 +81,23 @@ export async function GET(request) {
   } catch (error) {
     console.error('Error fetching leaderboards:', error);
     console.error('Error stack:', error.stack);
+    console.error('Error details:', {
+      message: error.message,
+      name: error.name,
+      code: error.code
+    });
+    
+    // Provide detailed error in development
+    const isDevelopment = process.env.NODE_ENV !== 'production';
     return NextResponse.json(
-      { error: 'Internal server error', details: error.message },
+      { 
+        error: 'Internal server error',
+        ...(isDevelopment && {
+          details: error.message,
+          errorName: error.name,
+          stack: error.stack
+        })
+      },
       { status: 500 }
     );
   }

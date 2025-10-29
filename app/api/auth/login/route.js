@@ -41,8 +41,19 @@ export async function POST(request) {
     // Generate JWT token
     const token = generateToken(user.id)
 
-    // Return user data (without password) and token
-    const { password: _, ...userWithoutPassword } = user
+    // Return user data (without password) - only select fields we need
+    const userWithoutPassword = {
+      id: user.id,
+      email: user.email,
+      username: user.username,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      profilePicture: user.profilePicture,
+      bio: user.bio,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+      totalQuestionsAnswered: user.totalQuestionsAnswered || 0
+    }
 
     return NextResponse.json({
       message: 'Login successful',
