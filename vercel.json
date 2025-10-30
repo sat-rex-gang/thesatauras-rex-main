@@ -1,0 +1,10 @@
+{
+  "buildCommand": "node scripts/safe-migrate.js && next build",
+  "functions": {
+    "app/api/**/*.js": {
+      "memory": 1024,
+      "maxDuration": 10
+    }
+  }
+}
+
