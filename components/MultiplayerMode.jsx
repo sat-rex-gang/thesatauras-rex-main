@@ -1226,26 +1226,6 @@ const MultiplayerMode = () => {
                             </p>
                           </div>
                           
-                          {/* Show user's answer status by default if available */}
-                          {hasUserAnswer && (
-                            <div className={`${
-                              isCorrect 
-                                ? 'bg-green-50 border-green-200' 
-                                : 'bg-red-50 border-red-200'
-                            } p-3 rounded-lg border mb-3`}>
-                              <p className={`text-xs font-medium mb-1 ${
-                                isCorrect ? 'text-green-700' : 'text-red-700'
-                              }`}>
-                                Your Answer:
-                              </p>
-                              <p className={`text-sm font-semibold ${
-                                isCorrect ? 'text-green-800' : 'text-red-800'
-                              }`}>
-                                {question.userAnswer}
-                              </p>
-                            </div>
-                          )}
-                          
                           {/* Reveal Answer Button */}
                           <motion.button
                             onClick={() => {
@@ -1265,36 +1245,50 @@ const MultiplayerMode = () => {
                           >
                             {isRevealed ? '👁️ Hide Answer' : '🔍 Reveal Answer'}
                           </motion.button>
+
+                          {/* Show user's answer when revealed */}
+                          {isRevealed && hasUserAnswer && (
+                            <div className={`${
+                              isCorrect 
+                                ? 'bg-green-50 border-green-200' 
+                                : 'bg-red-50 border-red-200'
+                            } p-3 rounded-lg border mb-3`}>
+                              <p className={`text-xs font-medium mb-1 ${
+                                isCorrect ? 'text-green-700' : 'text-red-700'
+                              }`}>
+                                Your Answer:
+                              </p>
+                              <p className={`text-sm font-semibold ${
+                                isCorrect ? 'text-green-800' : 'text-red-800'
+                              }`}>
+                                {question.userAnswer}
+                              </p>
+                            </div>
+                          )}
                           
-                          {/* Answer Choices - show answer highlighting when revealed */}
+                          {/* Answer Choices - only show highlighting when revealed */}
                           <div className="mt-4">
                             <p className="text-xs font-medium text-gray-600 mb-2">Answer Choices:</p>
                             <div className="space-y-2">
                               {question.Choices?.map((choice, choiceIndex) => {
                                 const choiceLetter = getChoiceLetter(choice);
                                 const isCorrectAnswer = isRevealed && choiceLetter === question.Answer;
-                                const isUserAnswer = hasUserAnswer && choiceLetter === question.userAnswer;
+                                const isUserAnswer = isRevealed && hasUserAnswer && choiceLetter === question.userAnswer;
                                 
                                 return (
                                   <div
                                     key={choiceIndex}
                                     className={`p-2 rounded text-xs ${
-                                      isRevealed && isUserAnswer && isCorrectAnswer
+                                      isUserAnswer && isCorrectAnswer
                                         ? 'bg-green-100 border border-green-300 text-green-800'
-                                        : isRevealed && isUserAnswer && !isCorrectAnswer
+                                        : isUserAnswer && !isCorrectAnswer
                                         ? 'bg-red-100 border border-red-300 text-red-800'
-                                        : isRevealed && isCorrectAnswer
+                                        : isCorrectAnswer
                                         ? 'bg-green-100 border border-green-300 text-green-800'
                                         : 'bg-gray-50 border border-gray-200 text-gray-700'
                                     }`}
                                   >
                                     <span className="font-medium">{choice}</span>
-                                    {isRevealed && isCorrectAnswer && (
-                                      <span className="ml-2 text-green-700 font-semibold">✓ Correct Answer</span>
-                                    )}
-                                    {isRevealed && isUserAnswer && !isCorrectAnswer && (
-                                      <span className="ml-2 text-red-700 font-semibold">Your Answer (Incorrect)</span>
-                                    )}
                                   </div>
                                 );
                               })}
