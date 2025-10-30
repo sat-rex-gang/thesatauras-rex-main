@@ -83,19 +83,9 @@ export async function POST(request) {
         ? 'questions_math.json'
         : 'questions_reading.json';
       
-      // Construct the URL - For serverless, we need to fetch from the public URL
-      // Try to get base URL from various sources
-      let baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 
-                    process.env.URL || // Netlify
-                    process.env.VERCEL_URL || 
-                    'http://localhost:3000';
-      
-      // Ensure protocol is included
-      if (baseUrl && !baseUrl.startsWith('http')) {
-        baseUrl = `https://${baseUrl}`;
-      }
-      
-      const questionUrl = `${baseUrl}/${questionFileName}`;
+      // Construct the URL reliably using the current request origin
+      const origin = new URL(request.url).origin;
+      const questionUrl = `${origin}/${questionFileName}`;
       
       console.log('Fetching questions from:', questionUrl);
       

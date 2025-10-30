@@ -118,6 +118,7 @@ export default function Profile() {
         
         // Calculate singleplayer questions from localStorage
         let totalQuestionsAnswered = 0;
+        let totalCorrect = 0;
         if (typeof window !== 'undefined') {
           for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
@@ -126,6 +127,7 @@ export default function Profile() {
                 const progressData = JSON.parse(localStorage.getItem(key));
                 if (progressData.correctAnswers) {
                   totalQuestionsAnswered += progressData.correctAnswers.length;
+                  totalCorrect += progressData.correctAnswers.length;
                 }
                 if (progressData.wrongAnswers) {
                   totalQuestionsAnswered += progressData.wrongAnswers.length;
@@ -141,7 +143,8 @@ export default function Profile() {
           ...data,
           singleplayer: {
             ...data.singleplayer,
-            totalQuestionsAnswered: totalQuestionsAnswered || data.singleplayer.totalQuestionsAnswered || 0
+            totalQuestionsAnswered: totalQuestionsAnswered || data.singleplayer.totalQuestionsAnswered || 0,
+            questionsCorrect: totalCorrect || 0
           }
         });
       }
@@ -640,8 +643,8 @@ export default function Profile() {
                           <span className="font-bold text-gray-900">{stats.singleplayer.totalQuestionsAnswered}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-600">Practice Tests</span>
-                          <span className="font-bold text-gray-900">{stats.singleplayer.totalTests}</span>
+                          <span className="text-gray-600">Questions Correct</span>
+                          <span className="font-bold text-gray-900">{stats.singleplayer.questionsCorrect || 0}</span>
                         </div>
                       </div>
                     </div>
