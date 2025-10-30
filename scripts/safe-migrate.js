@@ -5,6 +5,12 @@ async function safeMigrate() {
   try {
     console.log('Starting migration deployment...');
     
+    // Check if DATABASE_URL is set and valid
+    if (!process.env.DATABASE_URL) {
+      console.log('No DATABASE_URL found, skipping migration...');
+      return;
+    }
+    
     // Generate Prisma client first
     console.log('Generating Prisma client...');
     execSync('npx prisma generate --schema=prisma/schema.prisma', { stdio: 'inherit' });
@@ -12,6 +18,10 @@ async function safeMigrate() {
     const prisma = new PrismaClient();
     
     try {
+      // Test database connection first
+      await prisma.$connect();
+      console.log('Database connection successful');
+      
       // Check if database has any tables
       const result = await prisma.$queryRaw`
         SELECT COUNT(*) as count 
@@ -83,6 +93,10 @@ async function safeMigrate() {
         console.log('Note: migrate deploy may report that migrations are already applied. This is normal.');
       }
       
+    } catch (dbError) {
+      console.error('Database connection error:', dbError.message);
+      console.log('Continuing build despite database connection issue...');
+      // Don't fail the build if database is not accessible
     } finally {
       await prisma.$disconnect();
     }
