@@ -33,6 +33,8 @@ const MultiplayerMode = () => {
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [revealedAnswers, setRevealedAnswers] = useState(new Set());
   const [historyActiveTab, setHistoryActiveTab] = useState('all');
+  const [lastRoundSeen, setLastRoundSeen] = useState(null);
+  const [lastQuestionId, setLastQuestionId] = useState(null);
 
   const timerRef = useRef(null);
 
@@ -113,13 +115,37 @@ const MultiplayerMode = () => {
         } else if (updatedGame.status === "active" && screen === "waiting") {
           setScreen("playing");
           if (updatedGame.currentQuestion) {
+            const questionId = updatedGame.currentQuestion.Question || updatedGame.currentQuestion.question;
             setCurrentQuestion(updatedGame.currentQuestion);
+            setLastRoundSeen(updatedGame.currentRound);
+            setLastQuestionId(questionId);
+            setSelectedAnswer(""); // Clear any old selected answer when starting
             startTimer(updatedGame);
           }
         } else if (updatedGame.status === "active" && screen === "playing") {
           // Update current question from server
           if (updatedGame.currentQuestion) {
+            const questionId = updatedGame.currentQuestion.Question || updatedGame.currentQuestion.question;
+            const roundChanged = lastRoundSeen !== null && updatedGame.currentRound !== lastRoundSeen;
+            const questionChanged = lastQuestionId !== null && questionId !== lastQuestionId;
+            
+            // Find current player to check if they've answered
+            const currentPlayer = updatedGame.players?.find(p => p.id === user?.id || p.userId === user?.id);
+            
+            // If round or question changed, clear selected answer to prevent auto-selection bug
+            // Only preserve selectedAnswer if player has already submitted their answer for THIS question
+            if (roundChanged || questionChanged) {
+              // If player hasn't answered the new question yet, clear the selection
+              if (!currentPlayer?.currentAnswer) {
+                setSelectedAnswer("");
+              }
+              // Note: If currentPlayer.currentAnswer exists, it means they already submitted,
+              // so we don't want to clear it - the UI will show "hasAnswered" state correctly
+            }
+            
             setCurrentQuestion(updatedGame.currentQuestion);
+            setLastRoundSeen(updatedGame.currentRound);
+            setLastQuestionId(questionId);
             startTimer(updatedGame);
           }
         } else if (updatedGame.status === "forfeited") {
@@ -354,6 +380,10 @@ const MultiplayerMode = () => {
           }, 500);
         } else {
           setSelectedAnswer("");
+          if (data.currentQuestion) {
+            const questionId = data.currentQuestion.Question || data.currentQuestion.question;
+            setLastQuestionId(questionId);
+          }
           setCurrentQuestion(data.currentQuestion || null);
           await pollGameState();
         }
