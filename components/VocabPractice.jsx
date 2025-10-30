@@ -865,7 +865,6 @@ export default function VocabPractice() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <FaTimes />
                 Don't Know
                 <span className="text-sm opacity-75">(←)</span>
               </motion.button>
@@ -901,7 +900,6 @@ export default function VocabPractice() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <FaCheck />
                 Know It
                 <span className="text-sm opacity-75">(→)</span>
               </motion.button>
@@ -917,7 +915,7 @@ export default function VocabPractice() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                🔄 Flip Card
+                Flip Card
                 <span className="text-sm opacity-75">(Space)</span>
               </motion.button>
               <motion.button
@@ -930,7 +928,7 @@ export default function VocabPractice() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                {showWordFirst ? '📖 Word First' : '📝 Definition First'}
+                {showWordFirst ? 'Word First' : 'Definition First'}
               </motion.button>
               <motion.button
                 onClick={toggleShuffle}

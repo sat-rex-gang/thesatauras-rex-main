@@ -1098,65 +1098,116 @@ const MultiplayerMode = () => {
                 </div>
 
                 <h3 className="text-xl font-bold text-gray-900 mb-4">Questions from this Game</h3>
+                
+                {/* Game Summary */}
+                <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-600">Game Mode: {selectedGame.gameMode === 'fast' ? 'Fast Mode' : `Timed Mode (${selectedGame.timeLimit}s)`}</p>
+                      <p className="text-sm text-gray-600">Category: {selectedGame.category?.charAt(0).toUpperCase() + selectedGame.category?.slice(1)}</p>
+                      {selectedGame.questionType && (
+                        <p className="text-sm text-gray-600">Question Type: {selectedGame.questionType?.replace(/_/g, ' ')}</p>
+                      )}
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm text-gray-600">Total Questions: {selectedGame.questions?.length || 0}</p>
+                      <p className="text-sm text-gray-600">Rounds Played: {selectedGame.numRounds}</p>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="space-y-4">
                   {selectedGame.questions && selectedGame.questions.length > 0 ? (
-                    selectedGame.questions.map((question, index) => (
-                      <GlassComponents
-                        key={index}
-                        className="rounded-lg p-4 sm:p-6"
-                        width="100%"
-                        height="auto"
-                        borderRadius={20}
-                        borderWidth={0.03}
-                        backgroundOpacity={0.1}
-                        saturation={1}
-                        brightness={50}
-                        opacity={0.93}
-                        blur={22}
-                        displace={0.5}
-                        distortionScale={-180}
-                        redOffset={0}
-                        greenOffset={10}
-                        blueOffset={20}
-                        mixBlendMode="screen"
-                      >
-                        <div className="mb-4">
-                          <span className="text-xs sm:text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                            Question {index + 1}
-                          </span>
-                          <span className="ml-2 text-xs sm:text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                            {question.Topic?.replace(/_/g, ' ') || 'Unknown Topic'}
-                          </span>
-                        </div>
-                        <div className="mb-4">
-                          <p className="text-sm sm:text-base text-gray-900 leading-relaxed">
-                            {question.Question}
-                          </p>
-                        </div>
-                        <div className="mt-4">
-                          <p className="text-xs font-medium text-gray-600 mb-2">Answer Choices:</p>
-                          <div className="space-y-2">
-                            {question.Choices?.map((choice, choiceIndex) => {
-                              const choiceLetter = choice.split('.')[0];
-                              const isCorrectAnswer = choiceLetter === question.Answer;
-                              return (
-                                <div
-                                  key={choiceIndex}
-                                  className={`p-2 rounded text-xs ${
-                                    isCorrectAnswer
-                                      ? 'bg-green-100 border border-green-300 text-green-800'
-                                      : 'bg-gray-50 border border-gray-200 text-gray-700'
-                                  }`}
-                                >
-                                  <span className="font-medium">{choice}</span>
-                                  {isCorrectAnswer && <span className="ml-2 text-green-700">✓ Correct Answer</span>}
-                                </div>
-                              );
-                            })}
+                    selectedGame.questions.map((question, index) => {
+                      // Since we don't have individual answer history, we'll show the question with correct answer highlighted
+                      // In a real implementation, you'd want to store answer history in the database
+                      const isLastQuestion = index === selectedGame.questions.length - 1;
+                      const questionNumber = index + 1;
+                      
+                      return (
+                        <GlassComponents
+                          key={index}
+                          className="rounded-lg p-4 sm:p-6"
+                          width="100%"
+                          height="auto"
+                          borderRadius={20}
+                          borderWidth={0.03}
+                          backgroundOpacity={0.1}
+                          saturation={1}
+                          brightness={50}
+                          opacity={0.93}
+                          blur={22}
+                          displace={0.5}
+                          distortionScale={-180}
+                          redOffset={0}
+                          greenOffset={10}
+                          blueOffset={20}
+                          mixBlendMode="screen"
+                        >
+                          <div className="mb-4">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-xs sm:text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                                Question {questionNumber}
+                              </span>
+                              <span className="text-xs sm:text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                                {question.Topic?.replace(/_/g, ' ') || 'Unknown Topic'}
+                              </span>
+                            </div>
+                            <div className="text-xs text-gray-500 italic">
+                              Note: Individual answer history is not stored. This shows the question and correct answer.
+                            </div>
                           </div>
-                        </div>
-                      </GlassComponents>
-                    ))
+                          
+                          <div className="mb-4">
+                            <p className="text-sm sm:text-base text-gray-900 leading-relaxed">
+                              {question.Question}
+                            </p>
+                          </div>
+                          
+                          <div className="mt-4">
+                            <p className="text-xs font-medium text-gray-600 mb-2">Answer Choices:</p>
+                            <div className="space-y-2">
+                              {question.Choices?.map((choice, choiceIndex) => {
+                                const choiceLetter = choice.split('.')[0];
+                                const isCorrectAnswer = choiceLetter === question.Answer;
+                                return (
+                                  <div
+                                    key={choiceIndex}
+                                    className={`p-2 rounded text-xs ${
+                                      isCorrectAnswer
+                                        ? 'bg-green-100 border border-green-300 text-green-800'
+                                        : 'bg-gray-50 border border-gray-200 text-gray-700'
+                                    }`}
+                                  >
+                                    <span className="font-medium">{choice}</span>
+                                    {isCorrectAnswer && <span className="ml-2 text-green-700 font-semibold">✓ Correct Answer</span>}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                          
+                          {isLastQuestion && (
+                            <div className="mt-4 pt-4 border-t border-gray-200">
+                              <div className="text-center">
+                                <p className="text-sm text-gray-600">
+                                  Final Score: You {selectedGame.userScore} - {selectedGame.opponent?.firstName || selectedGame.opponent?.username || 'Opponent'} {selectedGame.opponentScore}
+                                </p>
+                                <p className={`text-sm font-semibold mt-1 ${
+                                  selectedGame.winner === 'user' ? 'text-green-600' :
+                                  selectedGame.winner === 'opponent' ? 'text-red-600' :
+                                  'text-gray-600'
+                                }`}>
+                                  {selectedGame.winner === 'user' ? 'You Won!' :
+                                   selectedGame.winner === 'opponent' ? 'You Lost' :
+                                   'Tie Game'}
+                                </p>
+                              </div>
+                            </div>
+                          )}
+                        </GlassComponents>
+                      );
+                    })
                   ) : (
                     <div className="text-center py-8 text-gray-500">
                       <p>No questions available for this game.</p>

@@ -6,9 +6,11 @@ import ProtectedRoute from "../../components/ProtectedRoute";
 import { motion } from "framer-motion";
 import GlassComponents from "../../components/GlassComponents";
 import { useAuth } from "../../contexts/AuthContext";
+import { useRouter } from "next/navigation";
 
 export default function Leaderboards() {
   const { user } = useAuth();
+  const router = useRouter();
   const [multiplayerLeaderboard, setMultiplayerLeaderboard] = useState([]);
   const [singlePlayerLeaderboard, setSinglePlayerLeaderboard] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -48,11 +50,14 @@ export default function Leaderboards() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.05 }}
-              className={`flex items-center gap-4 p-4 rounded-lg ${
+              className={`flex items-center gap-4 p-4 rounded-lg cursor-pointer transition-all duration-200 hover:shadow-md hover:scale-[1.02] ${
                 isCurrentUser 
                   ? 'bg-primary/10 border-2 border-primary' 
-                  : 'bg-gray-50 border border-gray-200'
+                  : 'bg-gray-50 border border-gray-200 hover:bg-gray-100'
               }`}
+              onClick={() => router.push(`/user/${entry.id}`)}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
             >
               <div className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg ${
                 entry.rank === 1 ? 'bg-yellow-500 text-white' :
@@ -111,7 +116,7 @@ export default function Leaderboards() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              🏆 Multiplayer Wins
+              Multiplayer Wins
             </motion.button>
             <motion.button
               onClick={() => setActiveTab("singleplayer")}
@@ -123,7 +128,7 @@ export default function Leaderboards() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              🏆 Single Player Questions
+              Single Player Questions
             </motion.button>
           </div>
 
@@ -158,8 +163,8 @@ export default function Leaderboards() {
               >
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">
                   {activeTab === "multiplayer" 
-                    ? "🏆 Multiplayer Wins Leaderboard" 
-                    : "🏆 Single Player Questions Leaderboard"}
+                    ? "Multiplayer Wins Leaderboard" 
+                    : "Single Player Questions Leaderboard"}
                 </h2>
                 {activeTab === "multiplayer" 
                   ? renderLeaderboard(multiplayerLeaderboard, "multiplayer")
