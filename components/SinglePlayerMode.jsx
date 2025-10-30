@@ -23,6 +23,12 @@ const SinglePlayerMode = ({ questionFile, title, description, questionType, onBa
   const [loading, setLoading] = useState(true);
   const [hasSavedProgress, setHasSavedProgress] = useState(false);
 
+  // Helper function to extract choice letter (handles both "A." and "A:" formats)
+  const getChoiceLetter = (choice) => {
+    const match = choice.match(/^([A-Z])[.:]/);
+    return match ? match[1] : choice.charAt(0);
+  };
+
   // Save progress to localStorage
   const saveProgress = () => {
     const progressData = {
@@ -532,9 +538,9 @@ const SinglePlayerMode = ({ questionFile, title, description, questionType, onBa
                   {currentQuestion.Choices.map((choice, index) => (
                     <motion.button
                       key={index}
-                      onClick={() => handleAnswerSelect(choice.split('.')[0])}
+                      onClick={() => handleAnswerSelect(getChoiceLetter(choice))}
                       className={`w-full text-left p-3 sm:p-4 rounded-lg border-2 transition-all ${
-                        selectedAnswer === choice.split('.')[0]
+                        selectedAnswer === getChoiceLetter(choice)
                           ? "border-primary bg-primary/10"
                           : "border-gray-200 hover:border-gray-300"
                       } ${showResult ? "cursor-not-allowed" : "cursor-pointer"}`}
@@ -699,7 +705,7 @@ const SinglePlayerMode = ({ questionFile, title, description, questionType, onBa
                             <p className="text-xs font-medium text-gray-600 mb-2">Answer Choices:</p>
                             <div className="space-y-2">
                               {question.Choices.map((choice, choiceIndex) => {
-                                const choiceLetter = choice.split('.')[0];
+                                const choiceLetter = getChoiceLetter(choice);
                                 const isUserAnswer = choiceLetter === question.userAnswer;
                                 const isCorrectAnswer = isRevealed && choiceLetter === question.Answer;
                                 
@@ -836,7 +842,7 @@ const SinglePlayerMode = ({ questionFile, title, description, questionType, onBa
                             <p className="text-xs font-medium text-gray-600 mb-2">Answer Choices:</p>
                             <div className="space-y-2">
                               {question.Choices.map((choice, choiceIndex) => {
-                                const choiceLetter = choice.split('.')[0];
+                                const choiceLetter = getChoiceLetter(choice);
                                 const isUserAnswer = isRevealed && choiceLetter === question.userAnswer;
                                 const isCorrectAnswer = isRevealed && choiceLetter === question.Answer;
                                 
@@ -964,7 +970,7 @@ const SinglePlayerMode = ({ questionFile, title, description, questionType, onBa
                               <p className="text-xs font-medium text-gray-600 mb-2">Answer Choices:</p>
                               <div className="space-y-2">
                                 {question.Choices.map((choice, choiceIndex) => {
-                                  const choiceLetter = choice.split('.')[0];
+                                  const choiceLetter = getChoiceLetter(choice);
                                   const correctAnswer = question.Answer;
                                   const isUserAnswer = isRevealed && choiceLetter === question.userAnswer;
                                   const isCorrectAnswer = isRevealed && choiceLetter === correctAnswer;

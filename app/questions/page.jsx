@@ -133,7 +133,7 @@ export default function Questions() {
   if (selectedCategory === "math" && selectedMathType) {
     return (
       <SinglePlayerMode
-        questionFile="questions_math.json"
+        questionFile="generated_math_questions.json"
         title={`${selectedMathType.name}`}
         description={selectedMathType.description}
         questionType={selectedMathType.id || undefined}

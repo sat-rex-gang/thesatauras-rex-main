@@ -80,7 +80,7 @@ export async function POST(request) {
       // For serverless compatibility, fetch from public URL
       // Use the same question file as singleplayer mode
       const questionFileName = game.category === 'math' 
-        ? 'questions_math.json'
+        ? 'generated_math_questions.json'
         : 'questions_reading.json';
       
       // Construct the URL reliably using the current request origin (previous working behavior)

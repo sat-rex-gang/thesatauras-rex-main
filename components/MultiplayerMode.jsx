@@ -35,6 +35,12 @@ const MultiplayerMode = () => {
 
   const timerRef = useRef(null);
 
+  // Helper function to extract choice letter (handles both "A." and "A:" formats)
+  const getChoiceLetter = (choice) => {
+    const match = choice.match(/^([A-Z])[.:]/);
+    return match ? match[1] : choice.charAt(0);
+  };
+
   // Reading question types
   const readingQuestionTypes = [
     { id: "Notes_Rhetorical_Synthesis", name: "Rhetorical Synthesis" },
@@ -894,7 +900,7 @@ const MultiplayerMode = () => {
 
             <div className="space-y-3 mb-6">
               {currentQuestion.Choices.map((choice, index) => {
-                const choiceLetter = choice.split('.')[0];
+                const choiceLetter = getChoiceLetter(choice);
                 return (
                   <motion.button
                     key={index}
@@ -1151,7 +1157,7 @@ const MultiplayerMode = () => {
                           mixBlendMode="screen"
                         >
                           <div className="mb-4">
-                            <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
                               <span className="text-xs sm:text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
                                 Question {questionNumber}
                               </span>
@@ -1159,10 +1165,10 @@ const MultiplayerMode = () => {
                                 {question.Topic?.replace(/_/g, ' ') || 'Unknown Topic'}
                               </span>
                               {hasUserAnswer && (
-                                <span className={`text-xs sm:text-sm font-semibold px-2 py-1 rounded-full ${
+                                <span className={`text-xs sm:text-sm font-semibold px-3 py-1 rounded-full ${
                                   isCorrect 
-                                    ? 'bg-green-100 text-green-700' 
-                                    : 'bg-red-100 text-red-700'
+                                    ? 'bg-green-100 text-green-700 border border-green-300' 
+                                    : 'bg-red-100 text-red-700 border border-red-300'
                                 }`}>
                                   {isCorrect ? '✓ Correct' : '✗ Incorrect'}
                                 </span>
@@ -1175,6 +1181,26 @@ const MultiplayerMode = () => {
                               {questionText}
                             </p>
                           </div>
+                          
+                          {/* Show user's answer status by default if available */}
+                          {hasUserAnswer && (
+                            <div className={`${
+                              isCorrect 
+                                ? 'bg-green-50 border-green-200' 
+                                : 'bg-red-50 border-red-200'
+                            } p-3 rounded-lg border mb-3`}>
+                              <p className={`text-xs font-medium mb-1 ${
+                                isCorrect ? 'text-green-700' : 'text-red-700'
+                              }`}>
+                                Your Answer:
+                              </p>
+                              <p className={`text-sm font-semibold ${
+                                isCorrect ? 'text-green-800' : 'text-red-800'
+                              }`}>
+                                {question.userAnswer}
+                              </p>
+                            </div>
+                          )}
                           
                           {/* Reveal Answer Button */}
                           <motion.button
@@ -1195,54 +1221,34 @@ const MultiplayerMode = () => {
                           >
                             {isRevealed ? '👁️ Hide Answer' : '🔍 Reveal Answer'}
                           </motion.button>
-
-                          {/* Show user's answer if revealed and available */}
-                          {isRevealed && hasUserAnswer && (
-                            <div className={`${
-                              isCorrect 
-                                ? 'bg-green-50 border-green-200' 
-                                : 'bg-red-50 border-red-200'
-                            } p-3 rounded-lg border mb-3`}>
-                              <p className={`text-xs font-medium mb-1 ${
-                                isCorrect ? 'text-green-700' : 'text-red-700'
-                              }`}>
-                                Your Answer:
-                              </p>
-                              <p className={`text-sm font-semibold ${
-                                isCorrect ? 'text-green-800' : 'text-red-800'
-                              }`}>
-                                {question.userAnswer}
-                              </p>
-                            </div>
-                          )}
                           
-                          {/* Answer Choices - only show answer highlighting when revealed */}
+                          {/* Answer Choices - show answer highlighting when revealed */}
                           <div className="mt-4">
                             <p className="text-xs font-medium text-gray-600 mb-2">Answer Choices:</p>
                             <div className="space-y-2">
                               {question.Choices?.map((choice, choiceIndex) => {
-                                const choiceLetter = choice.split('.')[0];
+                                const choiceLetter = getChoiceLetter(choice);
                                 const isCorrectAnswer = isRevealed && choiceLetter === question.Answer;
-                                const isUserAnswer = isRevealed && hasUserAnswer && choiceLetter === question.userAnswer;
+                                const isUserAnswer = hasUserAnswer && choiceLetter === question.userAnswer;
                                 
                                 return (
                                   <div
                                     key={choiceIndex}
                                     className={`p-2 rounded text-xs ${
-                                      isUserAnswer && isCorrectAnswer
+                                      isRevealed && isUserAnswer && isCorrectAnswer
                                         ? 'bg-green-100 border border-green-300 text-green-800'
-                                        : isUserAnswer && !isCorrectAnswer
+                                        : isRevealed && isUserAnswer && !isCorrectAnswer
                                         ? 'bg-red-100 border border-red-300 text-red-800'
-                                        : isCorrectAnswer
+                                        : isRevealed && isCorrectAnswer
                                         ? 'bg-green-100 border border-green-300 text-green-800'
                                         : 'bg-gray-50 border border-gray-200 text-gray-700'
                                     }`}
                                   >
                                     <span className="font-medium">{choice}</span>
-                                    {isCorrectAnswer && isRevealed && (
+                                    {isRevealed && isCorrectAnswer && (
                                       <span className="ml-2 text-green-700 font-semibold">✓ Correct Answer</span>
                                     )}
-                                    {isUserAnswer && !isCorrectAnswer && isRevealed && (
+                                    {isRevealed && isUserAnswer && !isCorrectAnswer && (
                                       <span className="ml-2 text-red-700 font-semibold">Your Answer (Incorrect)</span>
                                     )}
                                   </div>

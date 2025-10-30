@@ -225,7 +225,7 @@ export async function POST(request) {
     try {
       // For serverless compatibility, fetch from public URL
       const questionFileName = game.category === 'math' 
-        ? 'questions_math.json'
+        ? 'generated_math_questions.json'
         : 'questions_reading.json';
       
       // Use the current request origin (previous working behavior)
