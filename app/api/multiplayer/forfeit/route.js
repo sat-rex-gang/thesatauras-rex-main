@@ -60,6 +60,46 @@ export async function POST(request) {
       );
     }
 
+    // Save answer history for current round if there's a current question
+    if (game.currentQuestion && game.gameQuestions) {
+      const currentQuestion = typeof game.currentQuestion === 'string'
+        ? JSON.parse(game.currentQuestion)
+        : game.currentQuestion;
+      
+      try {
+        let gameQuestions = JSON.parse(game.gameQuestions);
+        const questionIndex = game.currentRound - 1;
+        
+        if (questionIndex >= 0 && questionIndex < gameQuestions.length) {
+          if (!gameQuestions[questionIndex].playerAnswers) {
+            gameQuestions[questionIndex].playerAnswers = {};
+          }
+          
+          // Store each player's answer for this round
+          for (const p of game.players) {
+            if (p.currentAnswer !== null) {
+              const isCorrect = p.currentAnswer === currentQuestion.Answer;
+              gameQuestions[questionIndex].playerAnswers[p.userId] = {
+                answer: p.currentAnswer,
+                isCorrect: isCorrect,
+                answeredAt: p.answeredAt
+              };
+            }
+          }
+          
+          // Update gameQuestions with answer history
+          await prisma.multiplayerGame.update({
+            where: { id: game.id },
+            data: {
+              gameQuestions: JSON.stringify(gameQuestions)
+            }
+          });
+        }
+      } catch (e) {
+        console.error('Error saving answer history on forfeit:', e);
+      }
+    }
+
     // Mark player as forfeited
     await prisma.multiplayerPlayer.update({
       where: { id: player.id },

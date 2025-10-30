@@ -102,35 +102,36 @@ export async function POST(request) {
       }
     }
 
-    // Store answer history before clearing
-    let gameQuestions = [];
-    try {
-      if (game.gameQuestions) {
-        gameQuestions = JSON.parse(game.gameQuestions);
-      }
-    } catch (e) {
-      console.error('Error parsing gameQuestions:', e);
-    }
-
-    // Enrich current question with player answers
-    const currentQuestion = typeof game.currentQuestion === 'string'
-      ? JSON.parse(game.currentQuestion)
-      : game.currentQuestion;
+    // Store answer history for the current round before clearing
+    // Reload game to get latest player answers
+    const currentGame = await prisma.multiplayerGame.findUnique({
+      where: { id: game.id },
+      include: { players: true }
+    });
     
-    if (currentQuestion && gameQuestions.length > 0) {
-      // Find the current question in gameQuestions by matching Question text
-      const questionIndex = gameQuestions.findIndex(q => 
-        q.Question === currentQuestion.Question
-      );
+    const currentQuestion = typeof currentGame.currentQuestion === 'string'
+      ? JSON.parse(currentGame.currentQuestion)
+      : currentGame.currentQuestion;
+    
+    if (currentQuestion && currentGame.gameQuestions) {
+      let gameQuestions = [];
+      try {
+        gameQuestions = JSON.parse(currentGame.gameQuestions);
+      } catch (e) {
+        console.error('Error parsing gameQuestions:', e);
+      }
+
+      // Use currentRound - 1 as index (rounds are 1-indexed, arrays are 0-indexed)
+      const questionIndex = currentGame.currentRound - 1;
       
-      if (questionIndex !== -1) {
+      if (questionIndex >= 0 && questionIndex < gameQuestions.length) {
         // Initialize playerAnswers if not exists
         if (!gameQuestions[questionIndex].playerAnswers) {
           gameQuestions[questionIndex].playerAnswers = {};
         }
         
-        // Store each player's answer
-        for (const p of game.players) {
+        // Store each player's answer for this round
+        for (const p of currentGame.players) {
           if (p.currentAnswer !== null) {
             const isCorrect = p.currentAnswer === currentQuestion.Answer;
             gameQuestions[questionIndex].playerAnswers[p.userId] = {
@@ -143,7 +144,7 @@ export async function POST(request) {
         
         // Update gameQuestions with answer history
         await prisma.multiplayerGame.update({
-          where: { id: game.id },
+          where: { id: currentGame.id },
           data: {
             gameQuestions: JSON.stringify(gameQuestions)
           }
@@ -152,7 +153,7 @@ export async function POST(request) {
     }
 
     // Clear answers for next round
-    for (const p of game.players) {
+    for (const p of currentGame.players) {
       await prisma.multiplayerPlayer.update({
         where: { id: p.id },
         data: {
@@ -163,20 +164,81 @@ export async function POST(request) {
     }
 
     // Check if game is finished
-    const nextRound = game.currentRound + 1;
-    if (nextRound > game.numRounds) {
-      // Game finished
-      await prisma.multiplayerGame.update({
-        where: { id: game.id },
-        data: {
-          status: 'finished',
-          currentRound: game.numRounds
+    const nextRound = currentGame.currentRound + 1;
+    if (nextRound > currentGame.numRounds) {
+      // Game finished - make sure last round's answers are saved
+      // (They should already be saved above, but ensure it's done)
+      const finalQuestion = typeof currentGame.currentQuestion === 'string'
+        ? JSON.parse(currentGame.currentQuestion)
+        : currentGame.currentQuestion;
+      
+      if (finalQuestion) {
+        let gameQuestions = [];
+        try {
+          if (currentGame.gameQuestions) {
+            gameQuestions = JSON.parse(currentGame.gameQuestions);
+          }
+        } catch (e) {
+          console.error('Error parsing gameQuestions:', e);
         }
-      });
+
+        // Reload game again to get latest state (in case answers were submitted after we saved)
+        const finalGameState = await prisma.multiplayerGame.findUnique({
+          where: { id: currentGame.id },
+          include: { players: true }
+        });
+        
+        const questionIndex = finalGameState.currentRound - 1;
+        if (questionIndex >= 0 && questionIndex < gameQuestions.length) {
+          if (!gameQuestions[questionIndex].playerAnswers) {
+            gameQuestions[questionIndex].playerAnswers = {};
+          }
+          
+          // Store each player's answer for the final round
+          for (const p of finalGameState.players) {
+            if (p.currentAnswer !== null) {
+              const isCorrect = p.currentAnswer === finalQuestion.Answer;
+              gameQuestions[questionIndex].playerAnswers[p.userId] = {
+                answer: p.currentAnswer,
+                isCorrect: isCorrect,
+                answeredAt: p.answeredAt
+              };
+            }
+          }
+          
+          // Update gameQuestions with final round answer history
+          await prisma.multiplayerGame.update({
+            where: { id: finalGameState.id },
+            data: {
+              status: 'finished',
+              currentRound: finalGameState.numRounds,
+              gameQuestions: JSON.stringify(gameQuestions)
+            }
+          });
+        } else {
+          // Just update status if we couldn't save answers
+          await prisma.multiplayerGame.update({
+            where: { id: finalGameState.id },
+            data: {
+              status: 'finished',
+              currentRound: finalGameState.numRounds
+            }
+          });
+        }
+      } else {
+        // Just update status if no current question
+        await prisma.multiplayerGame.update({
+          where: { id: currentGame.id },
+          data: {
+            status: 'finished',
+            currentRound: currentGame.numRounds
+          }
+        });
+      }
 
       // Get final scores
       const finalGame = await prisma.multiplayerGame.findUnique({
-        where: { id: game.id },
+        where: { id: currentGame.id },
         include: { 
           players: {
             include: {
@@ -204,7 +266,7 @@ export async function POST(request) {
       return NextResponse.json({
         success: true,
         gameFinished: true,
-        currentRound: game.numRounds,
+        currentRound: currentGame.numRounds,
         winner: winner ? {
           userId: winner.userId,
           id: winner.userId,
@@ -224,7 +286,7 @@ export async function POST(request) {
     // Load next question
     try {
       // For serverless compatibility, fetch from public URL
-      const questionFileName = game.category === 'math' 
+      const questionFileName = currentGame.category === 'math' 
         ? 'generated_math_questions.json'
         : 'questions_reading.json';
       
@@ -242,18 +304,18 @@ export async function POST(request) {
       }
 
       const questionsData = await response.json();
-      const filteredQuestions = game.questionType
-        ? questionsData.filter(q => q.Topic === game.questionType)
+      const filteredQuestions = currentGame.questionType
+        ? questionsData.filter(q => q.Topic === currentGame.questionType)
         : questionsData;
 
       // Parse stored question indices
-      const questionIndices = JSON.parse(game.questions || '[]');
+      const questionIndices = JSON.parse(currentGame.questions || '[]');
       const nextQuestionIndex = questionIndices[nextRound - 1];
       const nextQuestion = filteredQuestions[nextQuestionIndex];
 
       // Move to next round
       await prisma.multiplayerGame.update({
-        where: { id: game.id },
+        where: { id: currentGame.id },
         data: {
           currentRound: nextRound,
           currentQuestion: JSON.stringify(nextQuestion),
