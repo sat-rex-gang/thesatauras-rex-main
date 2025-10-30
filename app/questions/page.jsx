@@ -81,15 +81,121 @@ export default function Questions() {
       name: "All Math Questions",
       description: "Practice all math topics including algebra, geometry, and advanced math",
       count: "All questions"
+    },
+    {
+      id: "Linear Equations in One Variable",
+      name: "Linear Equations in One Variable",
+      description: "Solve linear equations with a single variable",
+      count: "500+ questions"
+    },
+    {
+      id: "Linear Equations in Two Variables",
+      name: "Linear Equations in Two Variables",
+      description: "Work with linear equations involving two variables",
+      count: "400+ questions"
+    },
+    {
+      id: "Systems of Two Linear Equations in Two Variables",
+      name: "Systems of Linear Equations",
+      description: "Solve systems of two linear equations with two variables",
+      count: "450+ questions"
+    },
+    {
+      id: "Linear Functions",
+      name: "Linear Functions",
+      description: "Understand and work with linear function relationships",
+      count: "400+ questions"
+    },
+    {
+      id: "Linear Inequalities in One or Two Variables",
+      name: "Linear Inequalities",
+      description: "Solve and graph linear inequalities",
+      count: "350+ questions"
+    },
+    {
+      id: "Nonlinear Functions",
+      name: "Nonlinear Functions",
+      description: "Explore quadratic, exponential, and other nonlinear functions",
+      count: "450+ questions"
+    },
+    {
+      id: "Nonlinear Functions and Systems of Equations in Two Variables",
+      name: "Nonlinear Systems",
+      description: "Solve systems involving nonlinear equations",
+      count: "300+ questions"
+    },
+    {
+      id: "Equivalent Expressions",
+      name: "Equivalent Expressions",
+      description: "Simplify and manipulate algebraic expressions",
+      count: "500+ questions"
+    },
+    {
+      id: "Right Triangles and Trigonometry",
+      name: "Right Triangles & Trigonometry",
+      description: "Apply trigonometric ratios and solve right triangle problems",
+      count: "400+ questions"
+    },
+    {
+      id: "Lines, Angles, and Triangles",
+      name: "Lines, Angles, and Triangles",
+      description: "Work with geometric relationships in lines and triangles",
+      count: "450+ questions"
+    },
+    {
+      id: "Circles",
+      name: "Circles",
+      description: "Solve problems involving circles, arcs, and angles",
+      count: "400+ questions"
+    },
+    {
+      id: "Area and Volume",
+      name: "Area and Volume",
+      description: "Calculate areas and volumes of various geometric shapes",
+      count: "500+ questions"
+    },
+    {
+      id: "Ratios, Rates, Proportional Relationships, and Units",
+      name: "Ratios and Proportions",
+      description: "Solve problems involving ratios, rates, and proportional relationships",
+      count: "450+ questions"
+    },
+    {
+      id: "Percentages",
+      name: "Percentages",
+      description: "Work with percentage calculations and applications",
+      count: "400+ questions"
+    },
+    {
+      id: "Probability and Conditional Probability",
+      name: "Probability",
+      description: "Calculate probabilities and conditional probabilities",
+      count: "350+ questions"
+    },
+    {
+      id: "One Variable Data",
+      name: "One Variable Data",
+      description: "Analyze and interpret single-variable data sets",
+      count: "300+ questions"
+    },
+    {
+      id: "Two Variable Data",
+      name: "Two Variable Data",
+      description: "Analyze relationships between two variables and scatter plots",
+      count: "350+ questions"
+    },
+    {
+      id: "Inference From Sample Statistics and Margin of Error",
+      name: "Statistical Inference",
+      description: "Make inferences from sample statistics and margin of error",
+      count: "250+ questions"
+    },
+    {
+      id: "Evaluating Statistical Claims",
+      name: "Evaluating Statistical Claims",
+      description: "Evaluate and interpret statistical claims and studies",
+      count: "300+ questions"
     }
-    // Add specific math topics here if your JSON file has Topic fields
-    // Example:
-    // {
-    //   id: "Algebra",
-    //   name: "Algebra",
-    //   description: "Practice algebraic equations and expressions",
-    //   count: "200+ questions"
-    // }
   ];
 
   const handleCategorySelect = (category) => {

@@ -346,8 +346,8 @@ const SinglePlayerMode = ({ questionFile, title, description, questionType, onBa
     );
   }
 
-  const currentQuestion = questions[currentQuestionIndex];
-  const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+  const currentQuestion = questions.length > 0 ? questions[currentQuestionIndex] : null;
+  const progress = questions.length > 0 ? ((currentQuestionIndex + 1) / questions.length) * 100 : 0;
 
   return (
     <div className="min-h-screen pt-24 sm:pt-32 pb-8 px-4">
@@ -474,7 +474,7 @@ const SinglePlayerMode = ({ questionFile, title, description, questionType, onBa
         </div>
 
         <AnimatePresence mode="wait">
-          {activeTab === "quiz" && !gameCompleted && (
+          {activeTab === "quiz" && !gameCompleted && currentQuestion && (
             <motion.div
               key="quiz"
               initial={{ opacity: 0, x: 20 }}
@@ -502,10 +502,11 @@ const SinglePlayerMode = ({ questionFile, title, description, questionType, onBa
                 <div className="mb-6">
                   <div className="flex items-center justify-between mb-3">
                     <div className="text-sm font-medium text-gray-600 bg-gray-50 px-3 py-2 rounded-lg">
-                      <span className="font-semibold">Topic:</span> {currentQuestion.Topic}
+                      <span className="font-semibold">Topic:</span> {currentQuestion?.Topic || 'Unknown'}
                     </div>
                     <motion.button
                       onClick={() => {
+                        if (!currentQuestion) return;
                         const questionResult = {
                           ...currentQuestion,
                           userAnswer: selectedAnswer,
@@ -516,8 +517,8 @@ const SinglePlayerMode = ({ questionFile, title, description, questionType, onBa
                       }}
                       className={`p-2 rounded-full transition-colors ${
                         starredQuestions.some(q => 
-                          q.Question === currentQuestion.Question || 
-                          q.question === currentQuestion.Question
+                          q.Question === currentQuestion?.Question || 
+                          q.question === currentQuestion?.Question
                         )
                           ? 'text-yellow-500 bg-yellow-100'
                           : 'text-gray-400 hover:text-yellow-500 hover:bg-yellow-50'
@@ -530,12 +531,12 @@ const SinglePlayerMode = ({ questionFile, title, description, questionType, onBa
                     </motion.button>
                   </div>
                   <h2 className="text-base sm:text-lg font-semibold text-gray-900 mb-4 leading-relaxed">
-                    {currentQuestion.Question}
+                    {currentQuestion?.Question || 'Loading question...'}
                   </h2>
                 </div>
 
                 <div className="space-y-3 mb-6">
-                  {currentQuestion.Choices.map((choice, index) => (
+                  {currentQuestion?.Choices?.map((choice, index) => (
                     <motion.button
                       key={index}
                       onClick={() => handleAnswerSelect(getChoiceLetter(choice))}
@@ -571,7 +572,7 @@ const SinglePlayerMode = ({ questionFile, title, description, questionType, onBa
                     <p className="text-sm">
                       {isCorrect 
                         ? "Great job! You got this question right."
-                        : `The correct answer was: ${currentQuestion.Answer}`
+                        : `The correct answer was: ${currentQuestion?.Answer || 'N/A'}`
                       }
                     </p>
                   </motion.div>

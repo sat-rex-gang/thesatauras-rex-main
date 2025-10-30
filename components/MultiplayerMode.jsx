@@ -55,6 +55,29 @@ const MultiplayerMode = () => {
     { id: "Reading2_Cross-Text_Connections", name: "Cross-Text Connections" }
   ];
 
+  // Math question types
+  const mathQuestionTypes = [
+    { id: "Linear Equations in One Variable", name: "Linear Equations in One Variable" },
+    { id: "Linear Equations in Two Variables", name: "Linear Equations in Two Variables" },
+    { id: "Systems of Two Linear Equations in Two Variables", name: "Systems of Linear Equations" },
+    { id: "Linear Functions", name: "Linear Functions" },
+    { id: "Linear Inequalities in One or Two Variables", name: "Linear Inequalities" },
+    { id: "Nonlinear Functions", name: "Nonlinear Functions" },
+    { id: "Nonlinear Functions and Systems of Equations in Two Variables", name: "Nonlinear Systems" },
+    { id: "Equivalent Expressions", name: "Equivalent Expressions" },
+    { id: "Right Triangles and Trigonometry", name: "Right Triangles & Trigonometry" },
+    { id: "Lines, Angles, and Triangles", name: "Lines, Angles, and Triangles" },
+    { id: "Circles", name: "Circles" },
+    { id: "Area and Volume", name: "Area and Volume" },
+    { id: "Ratios, Rates, Proportional Relationships, and Units", name: "Ratios and Proportions" },
+    { id: "Percentages", name: "Percentages" },
+    { id: "Probability and Conditional Probability", name: "Probability" },
+    { id: "One Variable Data", name: "One Variable Data" },
+    { id: "Two Variable Data", name: "Two Variable Data" },
+    { id: "Inference From Sample Statistics and Margin of Error", name: "Statistical Inference" },
+    { id: "Evaluating Statistical Claims", name: "Evaluating Statistical Claims" }
+  ];
+
   // Clear timer on unmount
   useEffect(() => {
     return () => {
@@ -575,6 +598,27 @@ const MultiplayerMode = () => {
                   >
                     <option value="">All Types</option>
                     {readingQuestionTypes.map((type) => (
+                      <option key={type.id} value={type.id}>
+                        {type.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {/* Question Type (for Math) */}
+              {settings.category === "math" && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Question Type (Optional)
+                  </label>
+                  <select
+                    value={settings.questionType || ""}
+                    onChange={(e) => setSettings({ ...settings, questionType: e.target.value || null })}
+                    className="w-full p-3 rounded-lg border-2 border-gray-200"
+                  >
+                    <option value="">All Types</option>
+                    {mathQuestionTypes.map((type) => (
                       <option key={type.id} value={type.id}>
                         {type.name}
                       </option>
