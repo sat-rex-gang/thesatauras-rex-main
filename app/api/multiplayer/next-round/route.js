@@ -102,6 +102,55 @@ export async function POST(request) {
       }
     }
 
+    // Store answer history before clearing
+    let gameQuestions = [];
+    try {
+      if (game.gameQuestions) {
+        gameQuestions = JSON.parse(game.gameQuestions);
+      }
+    } catch (e) {
+      console.error('Error parsing gameQuestions:', e);
+    }
+
+    // Enrich current question with player answers
+    const currentQuestion = typeof game.currentQuestion === 'string'
+      ? JSON.parse(game.currentQuestion)
+      : game.currentQuestion;
+    
+    if (currentQuestion && gameQuestions.length > 0) {
+      // Find the current question in gameQuestions by matching Question text
+      const questionIndex = gameQuestions.findIndex(q => 
+        q.Question === currentQuestion.Question
+      );
+      
+      if (questionIndex !== -1) {
+        // Initialize playerAnswers if not exists
+        if (!gameQuestions[questionIndex].playerAnswers) {
+          gameQuestions[questionIndex].playerAnswers = {};
+        }
+        
+        // Store each player's answer
+        for (const p of game.players) {
+          if (p.currentAnswer !== null) {
+            const isCorrect = p.currentAnswer === currentQuestion.Answer;
+            gameQuestions[questionIndex].playerAnswers[p.userId] = {
+              answer: p.currentAnswer,
+              isCorrect: isCorrect,
+              answeredAt: p.answeredAt
+            };
+          }
+        }
+        
+        // Update gameQuestions with answer history
+        await prisma.multiplayerGame.update({
+          where: { id: game.id },
+          data: {
+            gameQuestions: JSON.stringify(gameQuestions)
+          }
+        });
+      }
+    }
+
     // Clear answers for next round
     for (const p of game.players) {
       await prisma.multiplayerPlayer.update({

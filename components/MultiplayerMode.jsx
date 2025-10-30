@@ -31,6 +31,7 @@ const MultiplayerMode = () => {
   const [gameHistory, setGameHistory] = useState([]);
   const [selectedGame, setSelectedGame] = useState(null);
   const [loadingHistory, setLoadingHistory] = useState(false);
+  const [revealedAnswers, setRevealedAnswers] = useState(new Set());
 
   const timerRef = useRef(null);
 
@@ -1041,7 +1042,10 @@ const MultiplayerMode = () => {
             // Show selected game details and questions
             <div>
               <button
-                onClick={() => setSelectedGame(null)}
+                onClick={() => {
+                  setSelectedGame(null);
+                  setRevealedAnswers(new Set());
+                }}
                 className="mb-4 text-gray-600 hover:text-gray-800 transition-colors flex items-center gap-2"
               >
                 <span>←</span>
@@ -1119,10 +1123,12 @@ const MultiplayerMode = () => {
                 <div className="space-y-4">
                   {selectedGame.questions && selectedGame.questions.length > 0 ? (
                     selectedGame.questions.map((question, index) => {
-                      // Since we don't have individual answer history, we'll show the question with correct answer highlighted
-                      // In a real implementation, you'd want to store answer history in the database
-                      const isLastQuestion = index === selectedGame.questions.length - 1;
-                      const questionNumber = index + 1;
+                      const questionNumber = question.questionNumber || index + 1;
+                      const questionText = question.Question || question.question;
+                      const key = `${selectedGame.id}-${questionNumber}-${questionText}`;
+                      const isRevealed = revealedAnswers.has(key);
+                      const hasUserAnswer = question.userAnswer !== undefined && question.userAnswer !== null;
+                      const isCorrect = question.isCorrect;
                       
                       return (
                         <GlassComponents
@@ -1152,59 +1158,98 @@ const MultiplayerMode = () => {
                               <span className="text-xs sm:text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
                                 {question.Topic?.replace(/_/g, ' ') || 'Unknown Topic'}
                               </span>
-                            </div>
-                            <div className="text-xs text-gray-500 italic">
-                              Note: Individual answer history is not stored. This shows the question and correct answer.
+                              {hasUserAnswer && (
+                                <span className={`text-xs sm:text-sm font-semibold px-2 py-1 rounded-full ${
+                                  isCorrect 
+                                    ? 'bg-green-100 text-green-700' 
+                                    : 'bg-red-100 text-red-700'
+                                }`}>
+                                  {isCorrect ? '✓ Correct' : '✗ Incorrect'}
+                                </span>
+                              )}
                             </div>
                           </div>
                           
                           <div className="mb-4">
                             <p className="text-sm sm:text-base text-gray-900 leading-relaxed">
-                              {question.Question}
+                              {questionText}
                             </p>
                           </div>
                           
+                          {/* Reveal Answer Button */}
+                          <motion.button
+                            onClick={() => {
+                              setRevealedAnswers(prev => {
+                                const newSet = new Set(prev);
+                                if (newSet.has(key)) {
+                                  newSet.delete(key);
+                                } else {
+                                  newSet.add(key);
+                                }
+                                return newSet;
+                              });
+                            }}
+                            className="w-full py-2 px-4 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 mb-4"
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                          >
+                            {isRevealed ? '👁️ Hide Answer' : '🔍 Reveal Answer'}
+                          </motion.button>
+
+                          {/* Show user's answer if revealed and available */}
+                          {isRevealed && hasUserAnswer && (
+                            <div className={`${
+                              isCorrect 
+                                ? 'bg-green-50 border-green-200' 
+                                : 'bg-red-50 border-red-200'
+                            } p-3 rounded-lg border mb-3`}>
+                              <p className={`text-xs font-medium mb-1 ${
+                                isCorrect ? 'text-green-700' : 'text-red-700'
+                              }`}>
+                                Your Answer:
+                              </p>
+                              <p className={`text-sm font-semibold ${
+                                isCorrect ? 'text-green-800' : 'text-red-800'
+                              }`}>
+                                {question.userAnswer}
+                              </p>
+                            </div>
+                          )}
+                          
+                          {/* Answer Choices - only show answer highlighting when revealed */}
                           <div className="mt-4">
                             <p className="text-xs font-medium text-gray-600 mb-2">Answer Choices:</p>
                             <div className="space-y-2">
                               {question.Choices?.map((choice, choiceIndex) => {
                                 const choiceLetter = choice.split('.')[0];
-                                const isCorrectAnswer = choiceLetter === question.Answer;
+                                const isCorrectAnswer = isRevealed && choiceLetter === question.Answer;
+                                const isUserAnswer = isRevealed && hasUserAnswer && choiceLetter === question.userAnswer;
+                                
                                 return (
                                   <div
                                     key={choiceIndex}
                                     className={`p-2 rounded text-xs ${
-                                      isCorrectAnswer
+                                      isUserAnswer && isCorrectAnswer
+                                        ? 'bg-green-100 border border-green-300 text-green-800'
+                                        : isUserAnswer && !isCorrectAnswer
+                                        ? 'bg-red-100 border border-red-300 text-red-800'
+                                        : isCorrectAnswer
                                         ? 'bg-green-100 border border-green-300 text-green-800'
                                         : 'bg-gray-50 border border-gray-200 text-gray-700'
                                     }`}
                                   >
                                     <span className="font-medium">{choice}</span>
-                                    {isCorrectAnswer && <span className="ml-2 text-green-700 font-semibold">✓ Correct Answer</span>}
+                                    {isCorrectAnswer && isRevealed && (
+                                      <span className="ml-2 text-green-700 font-semibold">✓ Correct Answer</span>
+                                    )}
+                                    {isUserAnswer && !isCorrectAnswer && isRevealed && (
+                                      <span className="ml-2 text-red-700 font-semibold">Your Answer (Incorrect)</span>
+                                    )}
                                   </div>
                                 );
                               })}
                             </div>
                           </div>
-                          
-                          {isLastQuestion && (
-                            <div className="mt-4 pt-4 border-t border-gray-200">
-                              <div className="text-center">
-                                <p className="text-sm text-gray-600">
-                                  Final Score: You {selectedGame.userScore} - {selectedGame.opponent?.firstName || selectedGame.opponent?.username || 'Opponent'} {selectedGame.opponentScore}
-                                </p>
-                                <p className={`text-sm font-semibold mt-1 ${
-                                  selectedGame.winner === 'user' ? 'text-green-600' :
-                                  selectedGame.winner === 'opponent' ? 'text-red-600' :
-                                  'text-gray-600'
-                                }`}>
-                                  {selectedGame.winner === 'user' ? 'You Won!' :
-                                   selectedGame.winner === 'opponent' ? 'You Lost' :
-                                   'Tie Game'}
-                                </p>
-                              </div>
-                            </div>
-                          )}
                         </GlassComponents>
                       );
                     })
@@ -1244,7 +1289,10 @@ const MultiplayerMode = () => {
                       greenOffset={10}
                       blueOffset={20}
                       mixBlendMode="screen"
-                      onClick={() => setSelectedGame(game)}
+                      onClick={() => {
+                        setSelectedGame(game);
+                        setRevealedAnswers(new Set());
+                      }}
                     >
                       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div className="flex-1">

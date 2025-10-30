@@ -84,6 +84,20 @@ export async function GET(request) {
       if (game.gameQuestions) {
         try {
           questions = JSON.parse(game.gameQuestions);
+          
+          // Enrich questions with user's answer data
+          questions = questions.map((q, index) => {
+            const enrichedQuestion = { ...q, questionNumber: index + 1 };
+            
+            // Add user's answer data if available
+            if (q.playerAnswers && q.playerAnswers[decoded.userId]) {
+              const userAnswerData = q.playerAnswers[decoded.userId];
+              enrichedQuestion.userAnswer = userAnswerData.answer;
+              enrichedQuestion.isCorrect = userAnswerData.isCorrect;
+            }
+            
+            return enrichedQuestion;
+          });
         } catch (e) {
           console.error('Error parsing game questions:', e);
         }
@@ -96,6 +110,7 @@ export async function GET(request) {
         questionType: game.questionType,
         gameMode: game.gameMode,
         numRounds: game.numRounds,
+        timeLimit: game.timeLimit,
         createdAt: game.createdAt,
         userScore: userPlayer.score,
         opponentScore: otherPlayer?.score || 0,
