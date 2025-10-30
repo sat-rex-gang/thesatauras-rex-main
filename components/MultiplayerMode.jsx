@@ -1374,9 +1374,15 @@ const MultiplayerMode = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     whileHover={{ scale: 1.01 }}
+                    onClick={() => {
+                      setSelectedGame(game);
+                      setRevealedAnswers(new Set());
+                      setHistoryActiveTab('all');
+                    }}
+                    className="cursor-pointer"
                   >
                     <GlassComponents
-                      className="rounded-lg p-6 cursor-pointer"
+                      className="rounded-lg p-6"
                       width="100%"
                       height="auto"
                       borderRadius={20}
@@ -1392,11 +1398,6 @@ const MultiplayerMode = () => {
                       greenOffset={10}
                       blueOffset={20}
                       mixBlendMode="screen"
-                      onClick={() => {
-                        setSelectedGame(game);
-                        setRevealedAnswers(new Set());
-                        setHistoryActiveTab('all');
-                      }}
                     >
                       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div className="flex-1">
