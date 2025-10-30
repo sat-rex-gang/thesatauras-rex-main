@@ -32,6 +32,7 @@ const MultiplayerMode = () => {
   const [selectedGame, setSelectedGame] = useState(null);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [revealedAnswers, setRevealedAnswers] = useState(new Set());
+  const [historyActiveTab, setHistoryActiveTab] = useState('all');
 
   const timerRef = useRef(null);
 
@@ -1092,10 +1093,11 @@ const MultiplayerMode = () => {
             // Show selected game details and questions
             <div>
               <button
-                onClick={() => {
-                  setSelectedGame(null);
-                  setRevealedAnswers(new Set());
-                }}
+                      onClick={() => {
+                        setSelectedGame(null);
+                        setRevealedAnswers(new Set());
+                        setHistoryActiveTab('all');
+                      }}
                 className="mb-4 text-gray-600 hover:text-gray-800 transition-colors flex items-center gap-2"
               >
                 <span>←</span>
@@ -1170,139 +1172,196 @@ const MultiplayerMode = () => {
                   </div>
                 </div>
 
-                <div className="space-y-4">
-                  {selectedGame.questions && selectedGame.questions.length > 0 ? (
-                    selectedGame.questions.map((question, index) => {
-                      const questionNumber = question.questionNumber || index + 1;
-                      const questionText = question.Question || question.question;
-                      const key = `${selectedGame.id}-${questionNumber}-${questionText}`;
-                      const isRevealed = revealedAnswers.has(key);
-                      const hasUserAnswer = question.userAnswer !== undefined && question.userAnswer !== null;
-                      const isCorrect = question.isCorrect;
-                      
-                      return (
-                        <GlassComponents
-                          key={index}
-                          className="rounded-lg p-4 sm:p-6"
-                          width="100%"
-                          height="auto"
-                          borderRadius={20}
-                          borderWidth={0.03}
-                          backgroundOpacity={0.1}
-                          saturation={1}
-                          brightness={50}
-                          opacity={0.93}
-                          blur={22}
-                          displace={0.5}
-                          distortionScale={-180}
-                          redOffset={0}
-                          greenOffset={10}
-                          blueOffset={20}
-                          mixBlendMode="screen"
+                {/* Separate correct and wrong answers */}
+                {(() => {
+                  const correctQuestions = selectedGame.questions?.filter(q => q.isCorrect === true) || [];
+                  const wrongQuestions = selectedGame.questions?.filter(q => q.isCorrect === false) || [];
+                  const unansweredQuestions = selectedGame.questions?.filter(q => q.isCorrect === undefined || q.isCorrect === null) || [];
+                  
+                  return (
+                    <div>
+                      {/* Tabs for Correct/Wrong/All */}
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        <button
+                          onClick={() => setHistoryActiveTab('all')}
+                          className={`px-3 py-2 rounded-lg font-medium transition-colors text-sm ${
+                            historyActiveTab === 'all' 
+                              ? 'bg-primary text-white' 
+                              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                          }`}
                         >
-                          <div className="mb-4">
-                            <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
-                              <span className="text-xs sm:text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                                Question {questionNumber}
-                              </span>
-                              <span className="text-xs sm:text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                                {question.Topic?.replace(/_/g, ' ') || 'Unknown Topic'}
-                              </span>
-                              {hasUserAnswer && (
-                                <span className={`text-xs sm:text-sm font-semibold px-3 py-1 rounded-full ${
-                                  isCorrect 
-                                    ? 'bg-green-100 text-green-700 border border-green-300' 
-                                    : 'bg-red-100 text-red-700 border border-red-300'
-                                }`}>
-                                  {isCorrect ? '✓ Correct' : '✗ Incorrect'}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                          
-                          <div className="mb-4">
-                            <p className="text-sm sm:text-base text-gray-900 leading-relaxed">
-                              {questionText}
-                            </p>
-                          </div>
-                          
-                          {/* Reveal Answer Button */}
-                          <motion.button
-                            onClick={() => {
-                              setRevealedAnswers(prev => {
-                                const newSet = new Set(prev);
-                                if (newSet.has(key)) {
-                                  newSet.delete(key);
-                                } else {
-                                  newSet.add(key);
-                                }
-                                return newSet;
-                              });
-                            }}
-                            className="w-full py-2 px-4 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 mb-4"
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                          >
-                            {isRevealed ? '👁️ Hide Answer' : '🔍 Reveal Answer'}
-                          </motion.button>
+                          All ({selectedGame.questions?.length || 0})
+                        </button>
+                        <button
+                          onClick={() => setHistoryActiveTab('correct')}
+                          className={`px-3 py-2 rounded-lg font-medium transition-colors text-sm ${
+                            historyActiveTab === 'correct' 
+                              ? 'bg-green-600 text-white' 
+                              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                          }`}
+                        >
+                          Correct ({correctQuestions.length})
+                        </button>
+                        <button
+                          onClick={() => setHistoryActiveTab('wrong')}
+                          className={`px-3 py-2 rounded-lg font-medium transition-colors text-sm ${
+                            historyActiveTab === 'wrong' 
+                              ? 'bg-red-600 text-white' 
+                              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                          }`}
+                        >
+                          Wrong ({wrongQuestions.length})
+                        </button>
+                      </div>
 
-                          {/* Show user's answer when revealed */}
-                          {isRevealed && hasUserAnswer && (
-                            <div className={`${
-                              isCorrect 
-                                ? 'bg-green-50 border-green-200' 
-                                : 'bg-red-50 border-red-200'
-                            } p-3 rounded-lg border mb-3`}>
-                              <p className={`text-xs font-medium mb-1 ${
-                                isCorrect ? 'text-green-700' : 'text-red-700'
-                              }`}>
-                                Your Answer:
-                              </p>
-                              <p className={`text-sm font-semibold ${
-                                isCorrect ? 'text-green-800' : 'text-red-800'
-                              }`}>
-                                {question.userAnswer}
-                              </p>
-                            </div>
-                          )}
-                          
-                          {/* Answer Choices - only show highlighting when revealed */}
-                          <div className="mt-4">
-                            <p className="text-xs font-medium text-gray-600 mb-2">Answer Choices:</p>
-                            <div className="space-y-2">
-                              {question.Choices?.map((choice, choiceIndex) => {
-                                const choiceLetter = getChoiceLetter(choice);
-                                const isCorrectAnswer = isRevealed && choiceLetter === question.Answer;
-                                const isUserAnswer = isRevealed && hasUserAnswer && choiceLetter === question.userAnswer;
-                                
-                                return (
-                                  <div
-                                    key={choiceIndex}
-                                    className={`p-2 rounded text-xs ${
-                                      isUserAnswer && isCorrectAnswer
-                                        ? 'bg-green-100 border border-green-300 text-green-800'
-                                        : isUserAnswer && !isCorrectAnswer
-                                        ? 'bg-red-100 border border-red-300 text-red-800'
-                                        : isCorrectAnswer
-                                        ? 'bg-green-100 border border-green-300 text-green-800'
-                                        : 'bg-gray-50 border border-gray-200 text-gray-700'
-                                    }`}
-                                  >
-                                    <span className="font-medium">{choice}</span>
+                      <div className="space-y-4">
+                        {(() => {
+                          // Determine which questions to show based on activeTab
+                          let questionsToShow = [];
+                          if (historyActiveTab === 'correct') {
+                            questionsToShow = correctQuestions;
+                          } else if (historyActiveTab === 'wrong') {
+                            questionsToShow = wrongQuestions;
+                          } else {
+                            questionsToShow = selectedGame.questions || [];
+                          }
+
+                          return questionsToShow.length > 0 ? (
+                            questionsToShow.map((question, index) => {
+                              const questionNumber = question.questionNumber || index + 1;
+                              const questionText = question.Question || question.question;
+                              const key = `${selectedGame.id}-${questionNumber}-${questionText}`;
+                              const isRevealed = revealedAnswers.has(key);
+                              const hasUserAnswer = question.userAnswer !== undefined && question.userAnswer !== null;
+                              const isCorrect = question.isCorrect;
+                              
+                              return (
+                                <GlassComponents
+                                  key={index}
+                                  className="rounded-lg p-4 sm:p-6"
+                                  width="100%"
+                                  height="auto"
+                                  borderRadius={20}
+                                  borderWidth={0.03}
+                                  backgroundOpacity={0.1}
+                                  saturation={1}
+                                  brightness={50}
+                                  opacity={0.93}
+                                  blur={22}
+                                  displace={0.5}
+                                  distortionScale={-180}
+                                  redOffset={0}
+                                  greenOffset={10}
+                                  blueOffset={20}
+                                  mixBlendMode="screen"
+                                >
+                                  <div className="mb-4">
+                                    <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
+                                      <span className="text-xs sm:text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                                        Question {questionNumber}
+                                      </span>
+                                      <span className="text-xs sm:text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                                        {question.Topic?.replace(/_/g, ' ') || 'Unknown Topic'}
+                                      </span>
+                                      {hasUserAnswer && (
+                                        <span className={`text-xs sm:text-sm font-semibold px-3 py-1 rounded-full ${
+                                          isCorrect 
+                                            ? 'bg-green-100 text-green-700 border border-green-300' 
+                                            : 'bg-red-100 text-red-700 border border-red-300'
+                                        }`}>
+                                          {isCorrect ? '✓ Correct' : '✗ Incorrect'}
+                                        </span>
+                                      )}
+                                    </div>
                                   </div>
-                                );
-                              })}
+                                  
+                                  <div className="mb-4">
+                                    <p className="text-sm sm:text-base text-gray-900 leading-relaxed">
+                                      {questionText}
+                                    </p>
+                                  </div>
+                                  
+                                  {/* Reveal Answer Button */}
+                                  <motion.button
+                                    onClick={() => {
+                                      setRevealedAnswers(prev => {
+                                        const newSet = new Set(prev);
+                                        if (newSet.has(key)) {
+                                          newSet.delete(key);
+                                        } else {
+                                          newSet.add(key);
+                                        }
+                                        return newSet;
+                                      });
+                                    }}
+                                    className="w-full py-2 px-4 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 mb-4"
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                  >
+                                    {isRevealed ? '👁️ Hide Answer' : '🔍 Reveal Answer'}
+                                  </motion.button>
+
+                                  {/* Show user's answer when revealed */}
+                                  {isRevealed && hasUserAnswer && (
+                                    <div className={`${
+                                      isCorrect 
+                                        ? 'bg-green-50 border-green-200' 
+                                        : 'bg-red-50 border-red-200'
+                                    } p-3 rounded-lg border mb-3`}>
+                                      <p className={`text-xs font-medium mb-1 ${
+                                        isCorrect ? 'text-green-700' : 'text-red-700'
+                                      }`}>
+                                        Your Answer:
+                                      </p>
+                                      <p className={`text-sm font-semibold ${
+                                        isCorrect ? 'text-green-800' : 'text-red-800'
+                                      }`}>
+                                        {question.userAnswer}
+                                      </p>
+                                    </div>
+                                  )}
+                                  
+                                  {/* Answer Choices - only show highlighting when revealed */}
+                                  <div className="mt-4">
+                                    <p className="text-xs font-medium text-gray-600 mb-2">Answer Choices:</p>
+                                    <div className="space-y-2">
+                                      {question.Choices?.map((choice, choiceIndex) => {
+                                        const choiceLetter = getChoiceLetter(choice);
+                                        const isCorrectAnswer = isRevealed && choiceLetter === question.Answer;
+                                        const isUserAnswer = isRevealed && hasUserAnswer && choiceLetter === question.userAnswer;
+                                        
+                                        return (
+                                          <div
+                                            key={choiceIndex}
+                                            className={`p-2 rounded text-xs ${
+                                              isUserAnswer && isCorrectAnswer
+                                                ? 'bg-green-100 border border-green-300 text-green-800'
+                                                : isUserAnswer && !isCorrectAnswer
+                                                ? 'bg-red-100 border border-red-300 text-red-800'
+                                                : isCorrectAnswer
+                                                ? 'bg-green-100 border border-green-300 text-green-800'
+                                                : 'bg-gray-50 border border-gray-200 text-gray-700'
+                                            }`}
+                                          >
+                                            <span className="font-medium">{choice}</span>
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
+                                  </div>
+                                </GlassComponents>
+                              );
+                            })
+                          ) : (
+                            <div className="text-center py-8 text-gray-500">
+                              <p>No questions available for this {historyActiveTab === 'all' ? 'game' : historyActiveTab === 'correct' ? 'correct answers' : 'wrong answers'}.</p>
                             </div>
-                          </div>
-                        </GlassComponents>
-                      );
-                    })
-                  ) : (
-                    <div className="text-center py-8 text-gray-500">
-                      <p>No questions available for this game.</p>
+                          );
+                        })()}
+                      </div>
                     </div>
-                  )}
-                </div>
+                  );
+                })()}
               </GlassComponents>
             </div>
           ) : (
@@ -1336,6 +1395,7 @@ const MultiplayerMode = () => {
                       onClick={() => {
                         setSelectedGame(game);
                         setRevealedAnswers(new Set());
+                        setHistoryActiveTab('all');
                       }}
                     >
                       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
