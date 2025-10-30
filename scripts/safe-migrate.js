@@ -10,10 +10,17 @@ async function safeMigrate() {
       console.log('No DATABASE_URL found, skipping migration...');
       return;
     }
+
+    // By default, skip running migrations on Vercel unless explicitly enabled
+    // Set RUN_MIGRATIONS=true in env to force running
+    if (process.env.VERCEL && process.env.RUN_MIGRATIONS !== 'true') {
+      console.log('Vercel build detected and RUN_MIGRATIONS is not true; skipping migrations.');
+      return;
+    }
     
     // Generate Prisma client first
     console.log('Generating Prisma client...');
-    execSync('npx prisma generate --schema=prisma/schema.prisma', { stdio: 'inherit' });
+    execSync('npx prisma generate --schema=prisma/schema.prisma', { stdio: 'inherit', timeout: 120000 });
     
     const prisma = new PrismaClient();
     
@@ -88,7 +95,11 @@ async function safeMigrate() {
       // Now run migrate deploy
       console.log('Running prisma migrate deploy...');
       try {
-        execSync('npx prisma migrate deploy --schema=prisma/schema.prisma', { stdio: 'inherit' });
+        // Ensure a direct connection is available for migrations (bypass pooler)
+        if (!process.env.DIRECT_URL) {
+          console.log('DIRECT_URL not set. Migrations may fail or hang behind PgBouncer.');
+        }
+        execSync('npx prisma migrate deploy --schema=prisma/schema.prisma', { stdio: 'inherit', timeout: 180000 });
       } catch (error) {
         console.log('Note: migrate deploy may report that migrations are already applied. This is normal.');
       }
