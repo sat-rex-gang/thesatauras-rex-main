@@ -83,9 +83,25 @@ export async function POST(request) {
         ? 'questions_math.json'
         : 'questions_reading.json';
       
-      // Construct the URL reliably using the current request origin
-      const origin = new URL(request.url).origin;
-      const questionUrl = `${origin}/${questionFileName}`;
+      // Build a robust public URL for fetching question JSON
+      // 1) Prefer current request origin (works on Vercel)
+      // 2) Fallback to env URLs if needed
+      let baseUrl;
+      try {
+        baseUrl = new URL(request.url).origin;
+      } catch {
+        baseUrl = undefined;
+      }
+      if (!baseUrl || baseUrl === 'null') {
+        baseUrl = process.env.NEXT_PUBLIC_SITE_URL
+          || process.env.URL
+          || process.env.VERCEL_URL;
+        if (baseUrl && !baseUrl.startsWith('http')) {
+          baseUrl = `https://${baseUrl}`;
+        }
+      }
+      if (!baseUrl) baseUrl = 'http://localhost:3000';
+      const questionUrl = `${baseUrl}/${questionFileName}`;
       
       console.log('Fetching questions from:', questionUrl);
       
