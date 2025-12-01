@@ -11,22 +11,25 @@ import { useRouter } from "next/navigation";
 export default function Leaderboards() {
   const { user } = useAuth();
   const router = useRouter();
-  const [multiplayerLeaderboard, setMultiplayerLeaderboard] = useState([]);
-  const [singlePlayerLeaderboard, setSinglePlayerLeaderboard] = useState([]);
+  const [multiplayerLeaderboard, setMultiplayerLeaderboard] = useState({ top10: [], currentUser: null, lastPlace: null });
+  const [singlePlayerLeaderboard, setSinglePlayerLeaderboard] = useState({ top10: [], currentUser: null, lastPlace: null });
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("multiplayer");
 
   useEffect(() => {
     fetchLeaderboards();
-  }, []);
+  }, [user]);
 
   const fetchLeaderboards = async () => {
     try {
-      const response = await fetch('/api/leaderboards');
+      const token = localStorage.getItem('token');
+      const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+      
+      const response = await fetch('/api/leaderboards', { headers });
       if (response.ok) {
         const data = await response.json();
-        setMultiplayerLeaderboard(data.multiplayer || []);
-        setSinglePlayerLeaderboard(data.singlePlayer || []);
+        setMultiplayerLeaderboard(data.multiplayer || { top10: [], currentUser: null, lastPlace: null });
+        setSinglePlayerLeaderboard(data.singlePlayer || { top10: [], currentUser: null, lastPlace: null });
       }
     } catch (error) {
       console.error('Error fetching leaderboards:', error);
@@ -35,66 +38,103 @@ export default function Leaderboards() {
     }
   };
 
-  const renderLeaderboard = (leaderboard, type) => (
-    <div className="space-y-3">
-      {leaderboard.length === 0 ? (
+  const renderLeaderboard = (leaderboardData, type) => {
+    const { top10, currentUser, lastPlace } = leaderboardData;
+    const allEntries = [...top10];
+    
+    // Add current user if they're not in top 10
+    if (currentUser && currentUser.rank > 10) {
+      allEntries.push(currentUser);
+    }
+    
+    // Add last place if they're not already shown (not in top 10 and not the current user)
+    if (lastPlace) {
+      const isInTop10 = top10.some(e => e.id === lastPlace.id);
+      const isCurrentUser = currentUser && currentUser.id === lastPlace.id;
+      if (!isInTop10 && !isCurrentUser) {
+        allEntries.push(lastPlace);
+      }
+    }
+    
+    if (allEntries.length === 0) {
+      return (
         <div className="text-center py-8 text-gray-500">
           <p>No data available yet. Start playing to see rankings!</p>
         </div>
-      ) : (
-        leaderboard.map((entry, index) => {
+      );
+    }
+
+    return (
+      <div className="space-y-3">
+        {allEntries.map((entry, index) => {
           const isCurrentUser = user && entry.id === user.id;
+          const isLastPlace = lastPlace && entry.id === lastPlace.id;
+          const isSeparator = (currentUser && entry.id === currentUser.id && currentUser.rank > 10) || 
+                             (isLastPlace && (!currentUser || currentUser.rank <= 10));
+          const separatorText = isLastPlace ? 'Last Place' : 'Your Position';
+          
           return (
-            <motion.div
-              key={entry.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.05 }}
-              className={`flex items-center gap-4 p-4 rounded-lg cursor-pointer transition-all duration-200 hover:shadow-md hover:scale-[1.02] ${
-                isCurrentUser 
-                  ? 'bg-primary/10 border-2 border-primary' 
-                  : 'bg-gray-50 border border-gray-200 hover:bg-gray-100'
-              }`}
-              onClick={() => router.push(`/user/${entry.id}`)}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <div className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg ${
-                entry.rank === 1 ? 'bg-yellow-500 text-white' :
-                entry.rank === 2 ? 'bg-gray-400 text-white' :
-                entry.rank === 3 ? 'bg-orange-500 text-white' :
-                'bg-primary text-white'
-              }`}>
-                {entry.rank}
-              </div>
-              <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white font-bold text-lg overflow-hidden">
-                {entry.profilePicture ? (
-                  <img src={entry.profilePicture} alt={entry.username} className="w-full h-full object-cover" />
-                ) : (
-                  (entry.firstName?.charAt(0) || entry.username?.charAt(0) || "U").toUpperCase()
-                )}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className={`font-semibold ${isCurrentUser ? 'text-primary' : 'text-gray-900'}`}>
-                  {entry.firstName || entry.username}
-                  {isCurrentUser && <span className="ml-2 text-xs text-primary">(You)</span>}
-                </p>
-                <p className="text-sm text-gray-600">@{entry.username}</p>
-              </div>
-              <div className="text-right">
-                <p className={`text-2xl font-bold ${isCurrentUser ? 'text-primary' : 'text-gray-900'}`}>
-                  {type === "multiplayer" ? entry.multiplayerWins : entry.singlePlayerQuestions}
-                </p>
-                <p className="text-xs text-gray-500">
-                  {type === "multiplayer" ? "Wins" : "Questions"}
-                </p>
-              </div>
-            </motion.div>
+            <React.Fragment key={entry.id}>
+              {isSeparator && (
+                <div className="flex items-center gap-4 py-2">
+                  <div className="flex-1 border-t border-gray-300"></div>
+                  <span className="text-sm text-gray-500 px-4">{separatorText}</span>
+                  <div className="flex-1 border-t border-gray-300"></div>
+                </div>
+              )}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.05 }}
+                className={`flex items-center gap-4 p-4 rounded-lg cursor-pointer transition-all duration-200 hover:shadow-md hover:scale-[1.02] ${
+                  isCurrentUser 
+                    ? 'bg-primary/10 border-2 border-primary' 
+                    : isLastPlace
+                    ? 'bg-red-50 border border-red-200'
+                    : 'bg-gray-50 border border-gray-200 hover:bg-gray-100'
+                }`}
+                onClick={() => router.push(`/user/${entry.id}`)}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <div className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg ${
+                  entry.rank === 1 ? 'bg-yellow-500 text-white' :
+                  entry.rank === 2 ? 'bg-gray-400 text-white' :
+                  entry.rank === 3 ? 'bg-orange-500 text-white' :
+                  isLastPlace ? 'bg-red-500 text-white' :
+                  'bg-primary text-white'
+                }`}>
+                  {entry.rank}
+                </div>
+                <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white font-bold text-lg overflow-hidden">
+                  {entry.profilePicture ? (
+                    <img src={entry.profilePicture} alt={entry.username} className="w-full h-full object-cover" />
+                  ) : (
+                    (entry.firstName?.charAt(0) || entry.username?.charAt(0) || "U").toUpperCase()
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className={`font-semibold ${isCurrentUser ? 'text-primary' : 'text-gray-900'}`}>
+                    {entry.firstName || entry.username}
+                    {isCurrentUser && <span className="ml-2 text-xs text-primary">(You)</span>}
+                  </p>
+                  <p className="text-sm text-gray-600">@{entry.username}</p>
+                </div>
+                <div className="text-right">
+                  <p className={`text-2xl font-bold ${isCurrentUser ? 'text-primary' : 'text-gray-900'}`}>
+                    {type === "multiplayer" ? entry.multiplayerWins : entry.singlePlayerQuestions}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {type === "multiplayer" ? "Wins" : "Questions"}
+                  </p>
+                </div>
+              </motion.div>
+            </React.Fragment>
           );
-        })
-      )}
-    </div>
-  );
+        })}
+      </div>
+    );
+  };
 
   return (
     <ProtectedRoute>
@@ -166,6 +206,10 @@ export default function Leaderboards() {
                     ? "Multiplayer Wins Leaderboard" 
                     : "Single Player Questions Leaderboard"}
                 </h2>
+                <p className="text-sm text-gray-600 mb-4">
+                  Showing top 10 players{multiplayerLeaderboard.currentUser && activeTab === "multiplayer" && multiplayerLeaderboard.currentUser.rank > 10 ? ` and your position (#${multiplayerLeaderboard.currentUser.rank})` : ''}
+                  {singlePlayerLeaderboard.currentUser && activeTab === "singleplayer" && singlePlayerLeaderboard.currentUser.rank > 10 ? ` and your position (#${singlePlayerLeaderboard.currentUser.rank})` : ''}
+                </p>
                 {activeTab === "multiplayer" 
                   ? renderLeaderboard(multiplayerLeaderboard, "multiplayer")
                   : renderLeaderboard(singlePlayerLeaderboard, "singleplayer")}
